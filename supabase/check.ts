@@ -13,9 +13,14 @@ if (!url || !key) {
 
 const supabase = createClient(url, key, { auth: { persistSession: false } });
 
-const tables = ["skills", "trails", "stats", "settings"] as const;
+const tables = [
+  { name: "skills", col: "id" },
+  { name: "trails", col: "id" },
+  { name: "stats", col: "id" },
+  { name: "settings", col: "owner_id" }, // settings is keyed by owner_id, not id
+] as const;
 for (const t of tables) {
-  const { data, error } = await supabase.from(t).select("id");
-  if (error) console.log(`  ${t.padEnd(10)} ❌  ${error.message}`);
-  else console.log(`  ${t.padEnd(10)} ✅  ${data.length} rows`);
+  const { data, error } = await supabase.from(t.name).select(t.col);
+  if (error) console.log(`  ${t.name.padEnd(10)} ❌  ${error.message}`);
+  else console.log(`  ${t.name.padEnd(10)} ✅  ${data.length} rows`);
 }
