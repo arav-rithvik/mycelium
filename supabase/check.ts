@@ -15,7 +15,7 @@ const supabase = createClient(url, key, { auth: { persistSession: false } });
 
 const tables = ["skills", "trails", "stats", "settings"] as const;
 for (const t of tables) {
-  const { count, error } = await supabase.from(t).select("*", { count: "exact", head: true });
+  const { data, error } = await supabase.from(t).select("id");
   if (error) console.log(`  ${t.padEnd(10)} ❌  ${error.message}`);
-  else console.log(`  ${t.padEnd(10)} ✅  ${count} rows`);
+  else console.log(`  ${t.padEnd(10)} ✅  ${data.length} rows`);
 }
