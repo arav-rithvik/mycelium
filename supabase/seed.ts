@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { embed } from "@mycelium/shared/embed";
 import { bayesianTrust, tokensSaved, tokensToImpact } from "@mycelium/shared";
 import type { EnvFingerprint, SkillCategory } from "@mycelium/shared";
+import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
 // Seeds the commons with ~100 realistic skills spread across categories, frameworks, and trust levels,
 // each embedded with the local model. Idempotent: wipes and re-inserts. Run with `npm run seed`.
@@ -36,7 +39,7 @@ type Row = [string, SkillCategory, string, string, string, number, number, numbe
 
 const SKILLS: Row[] = [
   // --- auth ---
-  ["nextjs-supabase-auth", "auth", "nextjs", "Set up Supabase email auth in the Next.js App Router using the SSR PKCE flow with cookie-based sessions", "GET /auth/callback returns a 302 redirect", 18400, 34, 1, [E.next15, E.next14]],
+  ["nextjs-supabase-auth", "auth", "nextjs", "Set up Supabase email auth in the Next.js App Router using the SSR PKCE flow with cookie-based sessions", "GET /auth/callback returns a 302 redirect and the Supabase auth cookies are set", 18400, 34, 1, [E.next15, E.next14]],
   ["clerk-nextjs-setup", "auth", "nextjs", "Add Clerk authentication to a Next.js app with middleware-protected routes and a user button", "middleware redirects unauthenticated users to /sign-in", 12200, 21, 0, [E.next15]],
   ["nextauth-google-oauth", "auth", "nextjs", "Configure NextAuth (Auth.js) with the Google OAuth provider and a Prisma database adapter", "signing in with Google creates a user row", 15600, 18, 2, [E.next14, E.next13]],
   ["jwt-refresh-rotation", "auth", "node", "Implement access and refresh JWT rotation in Express with httpOnly cookies and reuse detection", "an expired access token refreshes via the token endpoint", 16800, 12, 3, [E.node20]],
@@ -53,7 +56,7 @@ const SKILLS: Row[] = [
 
   // --- payments ---
   ["stripe-checkout-nextjs", "payments", "nextjs", "Create a Stripe Checkout session in a Next.js route handler and redirect to hosted checkout", "POST /api/checkout returns a Stripe session URL", 16400, 29, 1, [E.next15, E.next14]],
-  ["stripe-webhooks-verify", "payments", "nextjs", "Handle Stripe webhooks in Next.js with signature verification and idempotent event processing", "an invalid webhook signature returns 400", 17200, 26, 2, [E.next15]],
+  ["stripe-webhooks-verify", "payments", "nextjs", "Handle Stripe webhooks in Next.js with signature verification and idempotent event processing", "POST /api/webhooks/stripe with an invalid signature returns 400; a valid Stripe-signed test event returns 200", 17200, 26, 2, [E.next15]],
   ["stripe-subscriptions", "payments", "node", "Implement Stripe subscriptions with trial periods and proration on plan changes", "upgrading a plan creates a proration invoice", 19800, 14, 2, [E.node20]],
   ["stripe-customer-portal", "payments", "nextjs", "Add the Stripe billing customer portal so users can manage their own subscriptions", "the portal session URL opens the Stripe portal", 8400, 12, 0, [E.next14]],
   ["stripe-connect-onboarding", "payments", "node", "Onboard marketplace sellers with Stripe Connect Express accounts and account links", "onboarding completes and charges_enabled becomes true", 22600, 6, 1, [E.node20]],
@@ -84,7 +87,7 @@ const SKILLS: Row[] = [
   // --- frontend ---
   ["react-force-graph-setup", "frontend", "react", "Render an interactive force-directed graph with react-force-graph-2d, custom node painting, and zoom", "the graph renders nodes and responds to drag", 11200, 12, 1, [E.react18]],
   ["framer-motion-page-transitions", "frontend", "nextjs", "Add shared-layout page transitions in the Next.js App Router with Framer Motion and AnimatePresence", "a route change animates without layout shift", 10600, 16, 2, [E.next15]],
-  ["tailwind-dark-mode", "frontend", "nextjs", "Implement class-based Tailwind dark mode with a no-flash theme toggle persisted to localStorage", "toggling switches theme with no flash of wrong theme", 7200, 24, 1, [E.next15, E.next14]],
+  ["tailwind-dark-mode", "frontend", "nextjs", "Implement class-based Tailwind dark mode with a no-flash theme toggle persisted to localStorage", "Toggling the theme adds/removes the 'dark' class on <html> and the choice survives reload with no flash of the wrong theme", 7200, 24, 1, [E.next15, E.next14]],
   ["shadcn-ui-setup", "frontend", "nextjs", "Set up shadcn/ui with Tailwind, the components config, and the CLI add workflow", "the shadcn add command installs a component", 6400, 28, 0, [E.next15]],
   ["react-query-infinite-scroll", "frontend", "react", "Build infinite scroll with TanStack Query useInfiniteQuery and an IntersectionObserver trigger", "scrolling to the sentinel fetches the next page", 9800, 11, 2, [E.react19]],
   ["zustand-store-persist", "frontend", "react", "Create a Zustand store with the persist middleware and selective state hydration", "store state survives a page reload", 6800, 14, 1, [E.react18]],
@@ -102,7 +105,7 @@ const SKILLS: Row[] = [
   // --- devops ---
   ["docker-multistage-node", "devops", "node", "Write a multi-stage Dockerfile for a Node app with a slim production image and good layer caching", "the built image is under 200MB", 12200, 18, 2, [E.node20]],
   ["github-actions-ci", "devops", "other", "Set up a GitHub Actions CI pipeline that installs, lints, tests, and caches dependencies", "a push triggers a green CI run", 9400, 22, 1, []],
-  ["dockerize-nextjs-standalone", "devops", "nextjs", "Containerize a Next.js app using the standalone output for a minimal runtime image", "the container serves the app on port 3000", 11800, 12, 2, [E.next15]],
+  ["dockerize-nextjs-standalone", "devops", "nextjs", "Containerize a Next.js app using the standalone output for a minimal runtime image", "docker run -p 3000:3000 serves the app on :3000 and the built image is well under 200MB", 11800, 12, 2, [E.next15]],
   ["vercel-monorepo-deploy", "devops", "nextjs", "Deploy a Next.js app from an npm-workspaces monorepo to Vercel with the right root directory", "a production deploy succeeds from the web workspace", 8600, 9, 1, [E.next15]],
   ["terraform-aws-vpc", "devops", "other", "Provision an AWS VPC with public and private subnets and a NAT gateway in Terraform", "terraform apply creates the network", 16400, 6, 2, []],
   ["kubernetes-deployment", "devops", "other", "Write a Kubernetes Deployment and Service with readiness probes and resource limits", "kubectl rollout status reports available", 14600, 5, 3, []],
@@ -120,7 +123,7 @@ const SKILLS: Row[] = [
   ["rest-rate-limiting", "api", "node", "Add sliding-window rate limiting to an Express API with Redis and correct 429 headers", "exceeding the limit returns a 429", 9800, 13, 1, [E.node20]],
   ["socketio-realtime-chat", "api", "node", "Build a Socket.IO realtime chat with rooms, an auth handshake, and reconnection", "two clients exchange messages in a room", 11200, 8, 2, [E.node20]],
   ["server-sent-events-stream", "api", "nextjs", "Stream server-sent events from a Next.js route handler for live progress updates", "the client receives streamed event chunks", 8400, 6, 1, [E.next15]],
-  ["openai-streaming-responses", "api", "node", "Stream OpenAI chat completions to the client token-by-token over a ReadableStream", "tokens render incrementally in the UI", 10600, 16, 2, [E.node22]],
+  ["openai-streaming-responses", "api", "nextjs", "Stream OpenAI chat completions to a React UI token-by-token from a Next.js App Router route handler", "The /api/chat route streams text chunks and the client UI renders tokens incrementally", 10600, 16, 2, [E.next15, E.next14]],
   ["webhook-signature-verify", "api", "node", "Verify inbound webhook signatures with HMAC and a constant-time comparison", "a tampered payload fails verification", 9200, 7, 1, [E.node20]],
   ["cors-config-express", "api", "node", "Configure CORS correctly for credentialed cross-origin requests with an allowlist", "the preflight returns the right access-control headers", 6800, 11, 3, [E.node20]],
   ["cursor-pagination", "api", "node", "Implement keyset cursor pagination for a large list endpoint with stable ordering", "the next-page cursor returns the following rows", 9400, 8, 1, []],
@@ -152,6 +155,35 @@ const SKILLS: Row[] = [
   ["openai-function-calling", "other", "node", "Implement OpenAI function and tool calling with a typed tool registry and argument validation", "the model invokes the tool with valid arguments", 11600, 10, 2, [E.node22]],
 ];
 
+// Hero skills ship a hand-written runbook at supabase/skills/<name>.md (real, reusable content —
+// the kind that actually saves the ~18k tokens of solving from scratch). Everything else gets a
+// light template; nobody inspects the atmosphere skills closely.
+const SKILLS_DIR = join(dirname(fileURLToPath(import.meta.url)), "skills");
+function loadContent(
+  name: string,
+  description: string,
+  framework: string,
+  category: SkillCategory,
+  success_check: string,
+): string {
+  const heroPath = join(SKILLS_DIR, `${name}.md`);
+  if (existsSync(heroPath)) return readFileSync(heroPath, "utf8");
+  return [
+    `# ${name}`,
+    ``,
+    `> ${description}`,
+    ``,
+    `**Framework:** ${framework} · **Category:** ${category}`,
+    ``,
+    `## Overview`,
+    `${description} This skill captures the proven setup so an agent can apply it without re-deriving it from scratch.`,
+    ``,
+    `## success_check`,
+    `\`${success_check}\``,
+    ``,
+  ].join("\n");
+}
+
 async function main() {
   console.log(`Seeding ${SKILLS.length} skills (embedding locally — first run downloads the model)...`);
 
@@ -171,7 +203,7 @@ async function main() {
       description,
       category,
       framework,
-      content: `# ${name}\n\n${description}\n\n## success_check\n\`${success_check}\`\n`,
+      content: loadContent(name, description, framework, category, success_check),
       success_check,
       embedding: JSON.stringify(vector), // pgvector parses the "[...]" text form
       trust_score: bayesianTrust(succ, fail),
