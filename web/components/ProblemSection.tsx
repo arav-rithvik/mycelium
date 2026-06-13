@@ -1,0 +1,300 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useInView,
+  animate,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
+
+/**
+ * ProblemSection — second beat of the Mycelium page. The hero dives underground;
+ * here the viewer lands in the glowing root network and confronts the cost of
+ * agent amnesia. Four stats count up on scroll-into-view (once). Atmosphere is
+ * built from faint emerald radial glows + drifting mycelial threads, matching the
+ * ForestDive design system (#0a0a0a, Geist, feathered edges, emerald-200 accents).
+ */
+
+type Stat = {
+  value: number;
+  /** Decimal places to render while counting. */
+  decimals: number;
+  prefix?: string;
+  suffix: string;
+  label: string;
+  equiv: string;
+};
+
+const STATS: Stat[] = [
+  { value: 250, decimals: 0, suffix: "M", label: "redundant sessions / day", equiv: "≈ 2,900 every second" },
+  { value: 105, decimals: 0, suffix: " MWh", label: "energy wasted daily", equiv: "≈ 3,600 homes for a day" },
+  { value: 6, decimals: 0, suffix: "M L", label: "water wasted daily", equiv: "≈ 5,300 homes' daily water" },
+  { value: 40, decimals: 0, suffix: " t", label: "CO₂ emitted daily", equiv: "≈ 2,000 homes' daily emissions" },
+];
+
+const container: Variants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
+  },
+};
+
+const rise: Variants = {
+  hidden: { opacity: 0, y: 28, filter: "blur(8px)" },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+function Counter({
+  stat,
+  start,
+}: {
+  stat: Stat;
+  start: boolean;
+}) {
+  const reduce = useReducedMotion();
+  const [display, setDisplay] = useState(reduce ? stat.value : 0);
+
+  useEffect(() => {
+    if (!start) return;
+    if (reduce) {
+      setDisplay(stat.value);
+      return;
+    }
+    const controls = animate(0, stat.value, {
+      duration: 1.0,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisplay(v),
+    });
+    return () => controls.stop();
+  }, [start, stat.value, reduce]);
+
+  const formatted = display.toLocaleString("en-US", {
+    minimumFractionDigits: stat.decimals,
+    maximumFractionDigits: stat.decimals,
+  });
+
+  return (
+    <span className="tabular-nums">
+      {stat.prefix}
+      {formatted}
+      {stat.suffix}
+    </span>
+  );
+}
+
+export default function ProblemSection() {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.35 });
+
+  const THREADS = [
+    "M-40 180 C 220 120, 360 320, 620 240 S 980 360, 1260 260",
+    "M-40 520 C 260 600, 420 380, 640 500 S 1000 420, 1260 560",
+    "M120 -40 C 200 220, 460 300, 520 560 S 720 760, 760 860",
+    "M880 -40 C 820 240, 1040 360, 980 600 S 1120 760, 1080 860",
+  ];
+
+  return (
+    <section
+      ref={ref}
+      id="problem"
+      className="relative isolate flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#0a0a0a] px-6 py-28 md:py-36"
+    >
+      {/* ── Underground atmosphere ───────────────────────────────────── */}
+      {/* Deep radial emerald glows, very faint, no hard edges */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(52,211,153,0.10),transparent_60%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_55%_at_18%_85%,rgba(110,231,183,0.07),transparent_60%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_55%_50%_at_85%_70%,rgba(16,185,129,0.06),transparent_62%)]"
+      />
+      {/* Vignette so the section melts into the page top & bottom (Mercury feather) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"
+      />
+
+      {/* Drifting mycelial threads — slow, breathing root network */}
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 h-full w-full opacity-[0.4]"
+        preserveAspectRatio="xMidYMid slice"
+        viewBox="0 0 1200 800"
+        fill="none"
+      >
+        <defs>
+          <linearGradient id="thread" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#34d399" stopOpacity="0" />
+            <stop offset="50%" stopColor="#6ee7b7" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+          </linearGradient>
+          <filter id="nodeGlow" x="-200%" y="-200%" width="500%" height="500%">
+            <feGaussianBlur stdDeviation="2.4" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {THREADS.map((d, i) => (
+          <motion.path
+            key={d}
+            id={`thread-${i}`}
+            d={d}
+            stroke="url(#thread)"
+            strokeWidth="1"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={
+              inView
+                ? { pathLength: 1, opacity: 1 }
+                : { pathLength: 0, opacity: 0 }
+            }
+            transition={{
+              duration: 2.6,
+              delay: 0.3 + i * 0.25,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+
+        {/* Data nodes travelling the threads, continuously */}
+        {THREADS.map((d, i) =>
+          [0, 1, 2].map((k) => (
+            <circle key={`node-${i}-${k}`} r="2.6" fill="#a7f3d0" filter="url(#nodeGlow)">
+              <animateMotion
+                dur={`${9 + i * 1.5}s`}
+                begin={`${k * (3 + i * 0.4)}s`}
+                repeatCount="indefinite"
+                rotate="auto"
+                keyPoints="0;1"
+                keyTimes="0;1"
+                calcMode="linear"
+              >
+                <mpath href={`#thread-${i}`} />
+              </animateMotion>
+              <animate
+                attributeName="opacity"
+                values="0;1;1;0"
+                keyTimes="0;0.1;0.9;1"
+                dur={`${9 + i * 1.5}s`}
+                begin={`${k * (3 + i * 0.4)}s`}
+                repeatCount="indefinite"
+              />
+            </circle>
+          )),
+        )}
+      </svg>
+
+      {/* Fine grain to kill banding in the gradients */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.025] mix-blend-screen"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        }}
+      />
+
+      {/* ── Content ──────────────────────────────────────────────────── */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate={inView ? "show" : "hidden"}
+        className="relative z-10 mx-auto w-full max-w-5xl -translate-y-8 text-center md:-translate-y-14"
+      >
+        {/* Eyebrow */}
+        <motion.div variants={rise} className="flex items-center justify-center">
+          <span className="inline-flex items-center rounded-full border border-emerald-400/15 bg-emerald-400/[0.04] px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.32em] text-emerald-200/80 backdrop-blur-sm">
+            The Problem
+          </span>
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h2
+          variants={rise}
+          className="mx-auto mt-8 max-w-3xl text-balance text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl"
+        >
+          Every AI agent has{" "}
+          <span className="relative whitespace-nowrap text-white">
+            amnesia.
+            <span
+              aria-hidden
+              className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-transparent via-emerald-300/60 to-transparent"
+            />
+          </span>
+        </motion.h2>
+
+        {/* Sub */}
+        <motion.p
+          variants={rise}
+          className="mx-auto mt-7 max-w-2xl text-pretty text-base leading-relaxed text-white/60 md:text-lg"
+        >
+          2.5 billion AI queries a day, and ~31% are re-solving problems other
+          agents on another person's device have already solved.{" "}
+          <span className="text-white/80">
+            Same compute. Same water. Same carbon.
+          </span>{" "}
+          Burned again and again in research and execution, for answers that
+          another agent has already found.
+        </motion.p>
+
+        {/* Stats */}
+        <motion.div
+          variants={rise}
+          className="mx-auto mt-16 grid w-full grid-cols-2 gap-px overflow-hidden rounded-[28px] border border-white/[0.07] bg-white/[0.02] backdrop-blur-sm md:mt-20 md:grid-cols-4"
+        >
+          {STATS.map((stat) => (
+            <div
+              key={stat.label}
+              className="group relative flex flex-col items-center justify-center gap-3 bg-[#0a0a0a]/40 px-5 py-9 transition-colors duration-500 hover:bg-emerald-400/[0.03] md:px-6 md:py-12"
+            >
+              {/* Hairline top glow on hover */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              />
+              <div className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-4xl font-medium tracking-tight text-transparent md:text-5xl">
+                <Counter stat={stat} start={inView} />
+              </div>
+              <div className="max-w-[14ch] text-[11px] font-medium uppercase leading-snug tracking-[0.14em] text-emerald-200/55">
+                {stat.label}
+              </div>
+              <div className="text-[11px] font-medium tracking-wide text-white/35">
+                {stat.equiv}
+              </div>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Caption */}
+        <motion.p
+          variants={rise}
+          className="mx-auto mt-12 max-w-2xl text-pretty text-sm leading-relaxed text-white/45 md:text-[15px]"
+        >
+          Every single day, re-solving solved problems. And inference, not
+          training, is now the footprint.
+        </motion.p>
+
+        {/* Footnote */}
+        <motion.p
+          variants={rise}
+          className="mx-auto mt-6 max-w-md text-[11px] leading-relaxed tracking-wide text-white/25"
+        >
+          Conservative 10% floor of measured query redundancy.
+        </motion.p>
+      </motion.div>
+    </section>
+  );
+}

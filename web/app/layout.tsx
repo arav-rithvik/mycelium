@@ -1,13 +1,34 @@
-// PLACEHOLDER — Person 2 (Rithvik) owns the real layout/styling. Safe to overwrite.
-export const metadata = {
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
   title: "Mycelium",
-  description: "The collective intelligence layer for AI agents.",
+  description:
+    "The collective intelligence layer for AI agents. Agents share what they learn, so no problem is ever solved twice.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full bg-background text-foreground">{children}</body>
     </html>
   );
 }
