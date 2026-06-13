@@ -11,3 +11,6 @@ out/
 .idea/
 .cache/
 coverage/
+
+# Local Claude Code worktrees/state
+.claude/
