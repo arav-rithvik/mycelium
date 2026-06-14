@@ -1,115 +1,152 @@
-# 🍄 Mycelium — the collective intelligence layer for AI agents
+# Mycelium
 
-**npm for agent knowledge.** An MCP server that lets Claude auto-generate reusable _skills_ from solved
-tasks, share them in a live commons, reuse them by **meaning** (real vector search), and let each skill
-_earn_ a trust score by actually working — so agents stop re-solving solved problems. Every reuse is
-inference that never had to happen: **energy, water, and carbon saved, measured live.**
+**The collective intelligence layer for AI agents. npm for agent knowledge.**
 
-> Built at Milpitas Hacks 2 (sustainability track). The infrastructure _is_ the sustainability angle —
-> we cut AI's own footprint and **measure** the cut instead of estimating it.
+In a forest, no tree grows alone. Above ground each tree looks independent, but underground
+a mycelium network connects their roots, letting every tree share water, nutrients, and what
+it has learned. No central authority. The whole forest gets stronger through the connection.
+
+AI agents today are the trees above ground. Every Claude session grows on its own, solving a
+problem from scratch even when another agent, on another person's machine, solved the exact
+same thing minutes ago. They are never connected, so the same work is done again and again.
+
+Mycelium is the network underneath. It is an MCP server that gives AI coding agents a shared,
+living memory. When an agent solves a real task, Mycelium auto-distills that session into a
+named, versioned, executable **skill** and shares it across a common network. The next agent
+that hits the same task discovers the skill, reuses it instead of reasoning from scratch, and
+verifies it actually worked. The agents stop growing alone and start growing together, and
+every reuse is inference that never had to happen.
+
+---
+
+## The problem
+
+- Roughly 2.5 billion AI queries are sent every day, and a large share re-solve problems
+  that have already been solved.
+- Inference, not training, is now the dominant footprint. Serving a model for a few months
+  produces more carbon than training it once.
+- On a deliberately conservative floor, the redundant work alone wastes on the order of
+  hundreds of megawatt-hours, millions of liters of water, and tens of tonnes of CO2 every
+  single day.
+
+Existing tools do not fix this. Semantic caches store text pairs with high false-positive
+rates, are single-tenant, and have no notion of whether an answer actually works. Mycelium
+shares verified, executable skills across agents, and measures the savings instead of
+estimating them.
+
+This is a sustainability project where the infrastructure itself is the sustainability angle:
+we cut AI's own footprint, and we count the savings in real tokens that were never generated.
 
 ---
 
 ## How it works
 
+1. **Solve once.** An agent solves a real task (set up auth, wire a webhook, fix a build).
+2. **Distill.** Mycelium turns that success into a reusable, executable skill, complete with
+   a name, version, dependencies, and an executable success-check.
+3. **Share.** The skill joins a shared commons and is discoverable instantly.
+4. **Reuse.** The next agent searches the commons, reads the skill's track record, and applies
+   it in a fraction of the tokens.
+5. **Earn trust.** The skill runs its own success-check in the real environment. That pass or
+   fail is the only thing that moves its trust score, so good knowledge rises and broken
+   knowledge fades, with no curator.
+
+---
+
+## The 5 MCP tools
+
+Mycelium exposes its capability to the agent through five MCP tools. The agent reasons over
+them and decides; it is never blindly injected.
+
+| Tool | What it does |
+| --- | --- |
+| `search_skills` | Semantic search (pgvector) over the commons. Returns ranked matches with full metadata and a compatibility score for the requester's environment. |
+| `get_skill` | Returns the full skill plus a per-message savings footer the agent appends to its reply. |
+| `publish_skill` | Distills a solved task into a named, versioned, dependency-tagged, check-backed skill and publishes it. |
+| `report_apply` | Runs the skill's `success_check` and records the real pass or fail. This is the only signal that moves trust, widens the proven environment envelope, and updates the impact totals. |
+| `set_sharing` | The privacy toggle (`/mycelium on` and `/mycelium off`). Keep new skills in a private library, or share them to the public commons. |
+
+---
+
+## Core ideas
+
+**Skills, not caches.** A skill is a named, versioned, dependency-pinned, executable unit with
+its own success-check, discoverable like an npm package. It is not a text blob you paste and
+hope works.
+
+**Trust you can watch fall.** Trust is a live Bayesian pass-rate from real outcomes:
+`(successes + 1) / (successes + failures + 2)`. Usage alone earns nothing. A skill used twenty
+times but broken eighteen of them has low trust. One real failure drops the score immediately.
+
+**Proven for your machine.** Trust is conditioned on the environment fingerprint (framework,
+version, OS, key dependencies). A skill proven on `react@19` is surfaced as "unproven,
+re-confirm" to an agent on `react@20`. Coverage widens one environment at a time, like a real
+package's compatibility matrix.
+
+**It heals on contact.** A new dependency version is just a new point in environment space. The
+first agent on it re-confirms the skill; success widens the proven envelope, failure prunes it.
+There is no re-verification cron and nothing rots.
+
+**Skills are data, never commands.** A poisoned skill cannot build a track record because it
+fails its own success-check, and a hard capability blacklist keeps skills from touching secrets,
+private data, source, or destructive operations no matter what text hides inside.
+
+**Measured, not modeled.** Savings are counted in real tokens that were never generated, at
+apply time, then converted to energy, water, and CO2 through published, cited per-query factors.
+Every figure is sourced and falsifiable.
+
+---
+
+## What is in this repository
+
+This is an npm-workspaces monorepo.
+
 ```
-   Claude Code ──(MCP)──► mycelium server ──► Supabase (Postgres + pgvector + realtime)
-    search / get               4 tools              skills · trails · stats
-    publish / report             │                         │
-                                 │                         └─(realtime)─► live dashboard
-                                 └── @mycelium/shared ───────────────────►  (graph + impact ticker)
-                                     trust · env-math · fingerprint · embeddings
+web/        Next.js (App Router) site and live dashboard for the commons
+mcp/        the MCP server that exposes the five tools
+shared/     shared TypeScript contract: types, environmental math, trust, fingerprinting
+supabase/   database schema (Postgres + pgvector + realtime) and seed data
 ```
 
-**The loop:** Claude `search_skills` before a task → semantic match in the commons → `get_skill` → applies
-it for ~20% of the from-scratch tokens → `report_apply` runs the skill's `success_check` outcome, which
-moves the skill's **Bayesian trust** up (success) or down (failure) and grows the live impact totals.
+The `web` workspace contains the public site, a scroll-driven explainer of the problem, the
+solution, and the feature set, plus the live dashboard, which visualizes the commons as a
+growing network of skills with a real-time impact ticker.
 
-## The 4 MCP tools
+---
 
-| Tool            | What it does                                                                                                                                                     |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `search_skills` | **Real pgvector cosine-similarity** search over skill-description embeddings. Returns ranked matches with trust + environment compatibility + projected savings. |
-| `get_skill`     | Returns a skill's full runbook + a ready-to-print **per-message savings footer**.                                                                                |
-| `publish_skill` | Distills a solved task into a named, versioned, check-backed skill in the commons (trust 0.50).                                                                  |
-| `report_apply`  | Records a `success_check` outcome → moves Bayesian trust (up/down), widens the proven-environment set, and updates the impact totals.                            |
+## Tech stack
 
-_Privacy is by connection: if you don't want to contribute, don't connect the MCP. (No per-skill privacy
-system — a deliberate hackathon cut.)_
+- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Motion.
+- **Backend:** TypeScript MCP server built on the Model Context Protocol SDK.
+- **Data:** Supabase (Postgres with the `pgvector` extension for semantic search, plus realtime
+  subscriptions that drive the live dashboard).
+- **Embeddings:** `text-embedding-3-small` for skill search.
 
-## Why it's real engineering, not vibes
+---
 
-- **Real semantic search.** Skill descriptions are embedded with a local model (`Supabase/gte-small`,
-  384-dim, no API key) and searched with pgvector cosine distance — not keyword matching. _"set up stripe
-  webhooks"_ finds a skill described as _"handle Stripe payment events"_ at 94% by meaning.
-- **Earned trust, Bayesian.** `trust = (successes + 1) / (successes + failures + 2)` — the mean of a
-  Beta(1,1) prior. A new skill is exactly 0.50; one success → 0.67; it **drops** on a real failure. Usage
-  alone never moves it — only `success_check` outcomes do. (See `shared/src/trust.ts`.)
-- **Environment-scoped.** A skill proven on `react@19` is surfaced as _"unproven — re-confirm"_ on
-  `react@21`; coverage widens one environment at a time. (See `shared/src/fingerprint.ts`.)
-- **Measured impact.** Tokens saved → energy/water/CO₂ via published, cited per-token factors. We observe
-  savings; we don't model them. (See `shared/src/env-math.ts` + `shared/src/constants.ts`.)
-- **Realtime, not polling.** Every DB write fans out over Supabase realtime → the dashboard reacts.
+## Running it locally
 
-## Repo layout
-
-```
-shared/   @mycelium/shared — types, trust, env-math, fingerprint, embeddings (imported by mcp + web)
-mcp/      the MCP server — stdio (local) + http.ts (remote/Railway)
-web/      Next.js dashboard + /api routes (graph, ticker, edges, "try it" search)
-supabase/ schema.sql (4 tables + pgvector match_skills RPC) + seed.ts (100 skills, 5 real runbooks)
-```
-
-## Run it locally
+Requires Node 20 or newer.
 
 ```bash
 npm install
-cp .env.example .env            # add your Supabase URL + anon + service_role keys
-# paste supabase/schema.sql into the Supabase SQL editor and run it
-npm run seed                    # 100 skills with local embeddings
-npm run db:check                # verify tables + row counts
-npm test                        # shared unit tests (21 passing)
-npm run mcp                     # start the MCP server (stdio)
-npm run dev -w @mycelium/web    # dashboard at http://localhost:3000
+cp .env.example .env          # fill in Supabase and embedding keys
+# run supabase/schema.sql in the Supabase SQL editor
+npm run seed                  # seed the commons with starter skills
+npm test                      # shared unit tests (trust, env-math, fingerprint)
+npm run web                   # start the site and dashboard
+npm run mcp                   # start the MCP server
 ```
 
-## Add it to Claude Code
+To use the MCP server from an agent, register it with your MCP client and the five tools become
+available. After solving something new the agent can publish it; before starting a task it can
+search the commons and reuse what already works.
 
-**Local (stdio):**
+---
 
-```bash
-claude mcp add mycelium -- npx tsx /ABS/PATH/mycelium/mcp/src/index.ts
-```
+## Why it matters
 
-**Remote (after deploying — see [DEPLOY.md](./DEPLOY.md)):**
-
-```bash
-claude mcp add --transport http mycelium https://<your-url>/mcp
-```
-
-## Make it automatic (recommended)
-
-Installing the MCP makes the tools _available_; to make Claude use them **automatically** — search before
-every task, apply, report, no prompting — add this to your `CLAUDE.md` (global `~/.claude/CLAUDE.md` or a
-project one):
-
-> **Mycelium (always on).** You have the Mycelium MCP. On every non-trivial setup/integration task:
-> (1) call `search_skills` **first** (with the user's environment) — silently, don't announce it;
-> (2) if a result is a strong match, `get_skill` and **apply it** — don't paste the runbook back, just
-> apply it, summarize what you did in ~2 lines, and append the savings footer the tool returns;
-> (3) after applying, run the skill's `success_check` and call `report_apply` with the **real** outcome;
-> (4) if nothing matched and you solved something reusable from scratch, `publish_skill` it.
-> Keep narration minimal — the experience should just be _faster_, not a tour of the tools.
-
-The MCP makes Mycelium possible; this instruction makes it **invisible** — the user never asks for it and
-never sees a different workflow, only a faster one.
-
-## Tests
-
-```bash
-npm test    # Vitest — trust, env-math, fingerprint (21 passing)
-```
-
-## License
-
-MIT — see [LICENSE](./LICENSE).
+We are not building another sustainability app. We are building the infrastructure that makes AI
+itself more sustainable. Agents stop growing alone and start growing together. Knowledge that
+keeps working grows stronger, knowledge that stops working fades, and no problem has to be solved
+twice.
