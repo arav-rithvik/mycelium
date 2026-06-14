@@ -29,10 +29,12 @@ const WALK = 5.2; // time crossing the lane
 const GAP = 2.8; // empty lane while the last trail fades out
 const LOOP = WALK + GAP; // ~8s
 
-// Trail fade lifetime (seconds). Older dots disappear first.
-const TRAIL_LIFE = 2.0;
-// How often (in loop-progress fraction) we drop a new pheromone dot.
-const DROP_EVERY = 0.014;
+// Trail fade lifetime (seconds). Older dots disappear first. Longer so the trail
+// stays clearly visible behind the ant after it has passed.
+const TRAIL_LIFE = 3.0;
+// How often (in loop-progress fraction) we drop a new pheromone dot. Denser =
+// a more continuous, readable trail.
+const DROP_EVERY = 0.009;
 
 const SPORES = [
   { top: "16%", left: "11%", d: 10, delay: 0 },
@@ -174,7 +176,7 @@ export default function TrailsSection({
         x: p * 100,
         y: laneY(p),
         born: -i * (TRAIL_LIFE / 18), // graded age → graded fade
-        r: 3.4,
+        r: 5.2,
       });
     }
     dots.current = seed;
@@ -214,7 +216,7 @@ export default function TrailsSection({
             x: dp * 100,
             y: laneY(dp),
             born: elapsed,
-            r: 3.2 + Math.random() * 1.2,
+            r: 5 + Math.random() * 1.6,
           });
         }
       }
@@ -242,6 +244,10 @@ export default function TrailsSection({
   const antP = reduce ? 0.5 : walking ? t / WALK : 1;
   const antVisible = reduce ? true : walking;
   const walkPhase = reduce ? 0 : (t / WALK) * 14; // leg-cycle frequency
+
+  // Trail-strength readout (0.00 → 1.00). Climbs as the ant lays its trail this
+  // pass (every "use"), reaches 1.00, then resets to 0 when a fresh path begins.
+  const strength = Math.max(0, Math.min(1, antP));
 
   // Compute fade for each dot relative to a shared "now".
   const referenceNow = reduce
@@ -305,8 +311,17 @@ export default function TrailsSection({
             Trails that strengthen with use.
           </h3>
           <p className="max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">
-            Every reuse lays a pheromone trail. Popular paths grow brighter, stale ones fade. The
-            commons organizes itself, with no curator.
+            Real ants navigate without a map. A forager that finds food lays a
+            chemical <span className="text-white/80">pheromone trail</span> on the
+            way home; other ants follow it and, if the path pays off, reinforce
+            it, while unused trails evaporate. No ant is in charge, yet the
+            colony&apos;s best routes simply emerge.{" "}
+            <span className="text-white/80">
+              Mycelium does the exact same for skills:
+            </span>{" "}
+            every successful reuse strengthens a skill&apos;s trail, and skills
+            that stop working fade, so the commons surfaces what actually works,
+            with no curator.
           </p>
         </motion.div>
 
@@ -317,6 +332,9 @@ export default function TrailsSection({
           transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           className="relative w-full"
         >
+          <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-[1.5fr_0.5fr] md:gap-10">
+            {/* LEFT — the walking ant + fading pheromone trail */}
+            <div>
           <div
             className="relative h-[150px] w-full overflow-hidden rounded-2xl border border-emerald-400/10 bg-transparent md:h-[180px]"
             style={{
@@ -342,7 +360,7 @@ export default function TrailsSection({
             >
               <defs>
                 <filter id="trailGlow" x="-30%" y="-200%" width="160%" height="500%">
-                  <feGaussianBlur stdDeviation="0.7" />
+                  <feGaussianBlur stdDeviation="1.05" />
                 </filter>
               </defs>
               <g filter="url(#trailGlow)">
@@ -350,8 +368,8 @@ export default function TrailsSection({
                   const age = reduce ? -d.born : referenceNow - d.born;
                   const life = 1 - age / TRAIL_LIFE; // 1 fresh → 0 gone
                   if (life <= 0) return null;
-                  const op = Math.pow(life, 1.4) * 0.85;
-                  const r = (d.r / 10) * (0.45 + life * 0.55);
+                  const op = Math.min(1, Math.pow(life, 0.75) * 1.05);
+                  const r = (d.r / 10) * (0.7 + life * 0.5);
                   return (
                     <circle
                       key={i}
@@ -387,6 +405,62 @@ export default function TrailsSection({
             pheromone trail
             <span className="mx-1 text-white/15">·</span>
             brightest behind · fades in {TRAIL_LIFE}s
+          </div>
+            </div>
+
+            {/* RIGHT — live trail-strength counter, climbs with every use */}
+            <div className="flex flex-col items-center justify-center">
+              <div className="relative h-44 w-44 md:h-48 md:w-48">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-2 rounded-full bg-emerald-400/10 blur-2xl"
+                />
+                <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+                  <defs>
+                    <linearGradient id="trailStrengthGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={LIGHT} />
+                      <stop offset="100%" stopColor={EMERALD} />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.08)"
+                    strokeWidth="6"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    fill="none"
+                    stroke="url(#trailStrengthGrad)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 44}
+                    strokeDashoffset={2 * Math.PI * 44 * (1 - strength)}
+                    style={{ filter: "drop-shadow(0 0 6px rgba(52,211,153,0.5))" }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span
+                    className="font-mono text-4xl font-medium tabular-nums text-emerald-200 md:text-5xl"
+                    style={{ textShadow: "0 0 18px rgba(52,211,153,0.45)" }}
+                  >
+                    {strength.toFixed(2)}
+                  </span>
+                  <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">
+                    trail strength
+                  </span>
+                </div>
+              </div>
+              <p className="mt-4 max-w-[15rem] text-center text-[12.5px] leading-relaxed text-white/40">
+                Each successful reuse pushes it toward{" "}
+                <span className="text-emerald-300/80">1.00</span>, then a fresh
+                path begins.
+              </p>
+            </div>
           </div>
         </motion.div>
 

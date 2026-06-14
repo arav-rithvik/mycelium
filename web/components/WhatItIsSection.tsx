@@ -643,11 +643,15 @@ export default function WhatItIsSection() {
             variants={rise}
             className="mt-5 max-w-xl text-pretty text-[14.5px] leading-relaxed text-white/60 md:text-[15px]"
           >
-            In a forest, no tree grows alone. Underground, a mycelium network
-            lets every tree share what it learns. Today, every AI agent grows by
-            itself, re-solving what other agents already solved.{" "}
+            This is built on a real phenomenon. In an actual rainforest, no tree
+            grows alone. Underground, a living fungal{" "}
+            <span className="text-white/80">mycelium network</span> (biologists
+            call it the &ldquo;Wood&nbsp;Wide&nbsp;Web&rdquo;) physically links
+            tree roots, letting them trade nutrients, water, and even warnings.
+            It isn&apos;t a metaphor; it&apos;s how forests genuinely share what
+            they learn.{" "}
             <span className="text-white/80">
-              Mycelium lets them grow together.
+              Today, AI agents grow alone. Mycelium gives them that same network.
             </span>
           </motion.p>
 
