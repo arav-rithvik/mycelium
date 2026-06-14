@@ -15,7 +15,12 @@ export default function Home() {
           transparent on top of this, so scrolling reads as one living surface. */}
       <BackdropFX />
       <ScrollSnap />
-      <div data-snap>
+      {/* Hero feathers into transparency at its base so the forest dive melts
+          into the roots backdrop — no hard black seam between trees and roots. */}
+      <div
+        data-snap
+        className="[mask-image:linear-gradient(to_bottom,#000_64%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_64%,transparent_100%)]"
+      >
         <ForestDive />
       </div>
       <div data-snap>

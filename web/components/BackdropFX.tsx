@@ -26,12 +26,12 @@ export default function BackdropFX() {
         }}
       />
 
-      {/* legibility scrim — slight darkness behind content so text reads easily,
-          a touch darker top & bottom so beats melt into each other */}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,8,0.7)_0%,rgba(7,9,8,0.36)_40%,rgba(7,9,8,0.4)_62%,rgba(7,9,8,0.7)_100%)]" />
+      {/* legibility scrim — UNIFORM so there are no top/bottom dark bands as you
+          scroll; just an even veil that keeps text readable over the roots */}
+      <div className="absolute inset-0 bg-[rgba(7,9,8,0.42)]" />
 
-      {/* gentle edge vignette — feathers the roots in from the sides */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_92%_88%_at_50%_50%,transparent_55%,rgba(7,9,8,0.65)_100%)]" />
+      {/* gentle edge vignette — feathers the roots in from the corners */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_96%_92%_at_50%_50%,transparent_62%,rgba(7,9,8,0.5)_100%)]" />
 
       {/* faint emerald life to tie the warm roots into the theme */}
       <div className="absolute -left-[10%] top-[14%] h-[60vh] w-[55vw] rounded-full bg-[radial-gradient(circle,rgba(52,211,153,0.06),transparent_62%)] blur-[150px]" />

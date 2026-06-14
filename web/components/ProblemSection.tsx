@@ -128,11 +128,6 @@ export default function ProblemSection() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_55%_50%_at_85%_70%,rgba(16,185,129,0.06),transparent_62%)]"
       />
-      {/* Vignette so the section melts into the page top & bottom (Mercury feather) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"
-      />
 
       {/* Drifting mycelial threads — slow, breathing root network */}
       <svg
@@ -205,15 +200,6 @@ export default function ProblemSection() {
         )}
       </svg>
 
-      {/* Fine grain to kill banding in the gradients */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.025] mix-blend-screen"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
-      />
 
       {/* ── Content ──────────────────────────────────────────────────── */}
       <motion.div
@@ -254,7 +240,7 @@ export default function ProblemSection() {
         {/* Stats */}
         <motion.div
           variants={rise}
-          className="relative mx-auto mt-16 grid w-full grid-cols-2 gap-px overflow-hidden rounded-[28px] border border-white/12 bg-[#0a0d0c]/55 shadow-[0_8px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl md:mt-20 md:grid-cols-4"
+          className="relative mx-auto mt-16 grid w-full grid-cols-2 gap-px overflow-hidden rounded-[28px] border border-white/12 bg-[#0a0d0c]/80 shadow-[0_8px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl md:mt-20 md:grid-cols-4"
         >
           {/* soft sheen across the glass */}
           <span
@@ -264,7 +250,7 @@ export default function ProblemSection() {
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className="group relative flex flex-col items-center justify-center gap-3 bg-[#0a0d0c]/35 px-5 py-9 transition-colors duration-500 hover:bg-emerald-400/[0.06] md:px-6 md:py-12"
+              className="group relative flex flex-col items-center justify-center gap-3 bg-[#0a0d0c]/70 px-5 py-9 transition-colors duration-500 hover:bg-emerald-400/[0.06] md:px-6 md:py-12"
             >
               {/* Hairline top glow on hover */}
               <span

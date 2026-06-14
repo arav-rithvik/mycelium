@@ -337,19 +337,26 @@ export default function CommonsDashboardSection() {
           maskImage: "radial-gradient(ellipse 80% 72% at 50% 50%, black, transparent 82%)",
         }}
       />
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-10 px-6 md:grid-cols-[1.2fr_0.8fr] md:gap-12">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-10 px-6 md:grid-cols-[1.2fr_0.8fr] md:gap-12 md:px-14">
         {/* ── LEFT: catalog ──────────────────────────────────────────────── */}
         <motion.div variants={container} initial="hidden" animate={inView ? "show" : "hidden"} className="flex flex-col">
-          <motion.h2
-            variants={rise}
-            className="text-balance text-3xl font-medium leading-[1.05] tracking-tight text-white sm:text-4xl"
-          >
-            Every skill Claude can reach.
-          </motion.h2>
+          <div className="relative isolate">
+            {/* soft dark scrim so the heading + copy stay readable over the canopy */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-x-7 -inset-y-6 -z-10 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(5,8,7,0.92),rgba(5,8,7,0.45)_62%,transparent_84%)] blur-md"
+            />
+            <motion.h2
+              variants={rise}
+              className="text-balance text-3xl font-medium leading-[1.05] tracking-tight text-white sm:text-4xl"
+            >
+              Every skill Claude can reach.
+            </motion.h2>
 
-          <motion.p variants={rise} className="mt-4 max-w-lg text-pretty text-[14px] leading-relaxed text-white/55">
-            The public skill database. Search it, see each skill&apos;s trust and where it&apos;s proven — and watch it grow every time an agent solves something new.
-          </motion.p>
+            <motion.p variants={rise} className="mt-4 max-w-lg text-pretty text-[14px] leading-relaxed text-white/55">
+              The public skill database. Search it, see each skill&apos;s trust and where it&apos;s proven — and watch it grow every time an agent solves something new.
+            </motion.p>
+          </div>
 
           {/* stats */}
           <motion.div variants={rise} className="mt-5 flex flex-wrap gap-2">
@@ -358,7 +365,7 @@ export default function CommonsDashboardSection() {
               { k: avgTrust.toFixed(2), sub: "avg trust" },
               { k: totalReuses.toLocaleString(), sub: "reuses" },
             ].map((s) => (
-              <div key={s.sub} className="rounded-lg border border-white/[0.07] bg-white/[0.02] px-3 py-1.5">
+              <div key={s.sub} className="rounded-lg border border-emerald-400/10 bg-[#070b09]/85 px-3 py-1.5 backdrop-blur-md">
                 <span className="font-mono text-[13px] font-medium tabular-nums text-emerald-200/90">{s.k}</span>{" "}
                 <span className="font-mono text-[10.5px] uppercase tracking-wide text-white/35">{s.sub}</span>
               </div>
@@ -367,7 +374,7 @@ export default function CommonsDashboardSection() {
 
           {/* search */}
           <motion.div variants={rise} className="mt-5">
-            <div className="flex items-center gap-2 rounded-xl border border-white/[0.09] bg-white/[0.02] px-3 py-2.5 transition-colors focus-within:border-emerald-400/40">
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#070b09]/85 px-3 py-2.5 backdrop-blur-md transition-colors focus-within:border-emerald-400/40">
               <span className="text-white/35">
                 <SearchIcon />
               </span>
@@ -400,7 +407,7 @@ export default function CommonsDashboardSection() {
                     className={`rounded-full border px-3 py-1 font-mono text-[11px] tracking-wide transition-colors ${
                       active
                         ? "border-emerald-400/40 bg-emerald-400/[0.12] text-emerald-200"
-                        : "border-white/10 bg-white/[0.02] text-white/45 hover:border-emerald-400/25 hover:text-emerald-200/80"
+                        : "border-emerald-400/10 bg-[#070b09]/85 text-white/55 backdrop-blur-md hover:border-emerald-400/25 hover:text-emerald-200/80"
                     }`}
                   >
                     {c}
@@ -424,10 +431,10 @@ export default function CommonsDashboardSection() {
                   key={s.name}
                   type="button"
                   onClick={() => setSelected(s.name)}
-                  className={`group flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-colors ${
+                  className={`group flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left backdrop-blur-md transition-colors ${
                     active
-                      ? "border-emerald-400/35 bg-emerald-400/[0.06]"
-                      : "border-white/[0.07] bg-white/[0.015] hover:border-emerald-400/25 hover:bg-emerald-400/[0.03]"
+                      ? "border-emerald-400/40 bg-[#0c1712]/90"
+                      : "border-emerald-400/10 bg-[#070b09]/85 hover:border-emerald-400/25 hover:bg-[#0a120e]/90"
                   }`}
                 >
                   <div className="min-w-0 flex-1">

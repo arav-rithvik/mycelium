@@ -253,7 +253,7 @@ export default function TrailsSection({
     <section
       data-snap
       ref={ref}
-      className="relative isolate flex h-screen w-full items-center overflow-hidden bg-[#0a0a0a]"
+      className="relative isolate flex h-screen w-full items-center overflow-hidden bg-transparent"
     >
       {/* ambient dot grid */}
       <div
@@ -318,7 +318,7 @@ export default function TrailsSection({
           className="relative w-full"
         >
           <div
-            className="relative h-[150px] w-full overflow-hidden rounded-2xl border border-emerald-400/12 bg-[#0b0e0d]/60 md:h-[180px]"
+            className="relative h-[150px] w-full overflow-hidden rounded-2xl border border-emerald-400/10 bg-transparent md:h-[180px]"
             style={{
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03), 0 0 50px rgba(16,185,129,0.06)",
               maskImage:

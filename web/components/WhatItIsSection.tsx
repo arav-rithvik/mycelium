@@ -616,15 +616,6 @@ export default function WhatItIsSection() {
         ))}
       </svg>
 
-      {/* Feather top & bottom into #0a0a0a so it blends with neighbors */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-[#0a0a0a] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[#0a0a0a] to-transparent"
-      />
 
       {/* ── Two-column content: explanation (left) + terminal (right) ───── */}
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-14 lg:gap-20">
