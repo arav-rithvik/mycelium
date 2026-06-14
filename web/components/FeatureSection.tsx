@@ -39,7 +39,7 @@ function DetailCard({
   return (
     <button
       type="button"
-      className="group rounded-xl border border-white/[0.07] bg-white/[0.015] px-4 py-3 text-left transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.04]"
+      className="group rounded-xl border border-emerald-400/10 bg-[#070b09]/85 px-4 py-3 text-left shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.08]"
     >
       {commandStyle ? (
         <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.14] px-3 py-1 font-mono text-[12px] tracking-[0.06em] text-white shadow-[0_0_18px_rgba(52,211,153,0.18)] transition-colors group-hover:bg-emerald-400/25">
@@ -124,8 +124,13 @@ export default function FeatureSection({
             initial={{ opacity: 0, y: 24 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
             transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className={`flex flex-col gap-5 ${left ? "md:order-1" : "md:order-2"}`}
+            className={`relative flex flex-col gap-5 ${left ? "md:order-1" : "md:order-2"}`}
           >
+            {/* soft dark scrim so the heading + copy stay readable over the canopy */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-x-7 -inset-y-6 -z-10 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(5,8,7,0.92),rgba(5,8,7,0.45)_62%,transparent_84%)] blur-md"
+            />
             <div className="flex items-center gap-4">
               <span className="font-mono text-2xl font-medium leading-none text-emerald-300">{num}</span>
               <span className="h-px w-12 flex-none bg-gradient-to-r from-emerald-400/50 to-transparent" />

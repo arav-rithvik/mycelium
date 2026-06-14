@@ -168,8 +168,13 @@ export default function SkillSynthesisSection({
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-4"
+          className="relative flex flex-col gap-4"
         >
+          {/* soft dark scrim so the heading + copy stay readable over the canopy */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-7 -inset-y-6 -z-10 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(5,8,7,0.92),rgba(5,8,7,0.45)_62%,transparent_84%)] blur-md"
+          />
           <div className="flex items-center gap-4">
             <span className="font-mono text-2xl font-medium leading-none text-emerald-300">{num}</span>
             <span className="h-px w-12 flex-none bg-gradient-to-r from-emerald-400/50 to-transparent" />

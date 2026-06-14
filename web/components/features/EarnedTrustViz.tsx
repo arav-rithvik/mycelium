@@ -178,7 +178,9 @@ export default function EarnedTrustViz() {
   }, [reduceMotion]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#0a0a0a]">
+    <div className="absolute inset-0 overflow-hidden">
+      {/* dark pool that fades into the page so the dial reads as a glow, not a box */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,9,8,0.92)_28%,rgba(6,9,8,0.6)_54%,transparent_80%)]" />
       {/* ambient field (no box, no grid, just a soft emerald halo) */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_46%,rgba(52,211,153,0.10),transparent_60%)]" />
       {/* failure red wash */}

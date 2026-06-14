@@ -337,10 +337,6 @@ export default function CommonsDashboardSection() {
           maskImage: "radial-gradient(ellipse 80% 72% at 50% 50%, black, transparent 82%)",
         }}
       />
-      {/* feather top/bottom */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-[#0a0a0a] to-transparent" />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
-
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-10 px-6 md:grid-cols-[1.2fr_0.8fr] md:gap-12">
         {/* ── LEFT: catalog ──────────────────────────────────────────────── */}
         <motion.div variants={container} initial="hidden" animate={inView ? "show" : "hidden"} className="flex flex-col">

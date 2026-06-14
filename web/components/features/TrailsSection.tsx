@@ -289,8 +289,13 @@ export default function TrailsSection({
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-4"
+          className="relative flex flex-col gap-4"
         >
+          {/* soft dark scrim so the heading + copy stay readable over the canopy */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-7 -inset-y-6 -z-10 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(5,8,7,0.92),rgba(5,8,7,0.45)_62%,transparent_84%)] blur-md"
+          />
           <div className="flex items-center gap-4">
             <span className="font-mono text-2xl font-medium leading-none text-emerald-300">{num}</span>
             <span className="h-px w-12 flex-none bg-gradient-to-r from-emerald-400/50 to-transparent" />
@@ -395,7 +400,7 @@ export default function TrailsSection({
           {DETAILS.map((d) => (
             <div
               key={d.heading}
-              className="group rounded-xl border border-white/[0.07] bg-white/[0.015] px-4 py-3.5 text-left transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.04]"
+              className="group rounded-xl border border-emerald-400/10 bg-[#070b09]/85 shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-md px-4 py-3.5 text-left transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.08]"
             >
               <div className="font-mono text-[12px] uppercase tracking-[0.14em] text-emerald-300/90">
                 {d.heading}

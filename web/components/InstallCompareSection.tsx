@@ -284,24 +284,19 @@ export default function InstallCompareSection() {
           maskImage: "radial-gradient(ellipse 75% 70% at 50% 50%, black, transparent 82%)",
         }}
       />
-      {/* feather top & bottom into bg so it blends with neighbors */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-[#0a0a0a] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[#0a0a0a] to-transparent"
-      />
-
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-6 md:grid-cols-2 md:gap-14 lg:gap-20">
         {/* ── LEFT: install ──────────────────────────────────────────────── */}
         <motion.div
           variants={container}
           initial="hidden"
           animate={inView ? "show" : "hidden"}
-          className="flex flex-col"
+          className="relative flex flex-col"
         >
+          {/* soft dark scrim so the heading + copy stay readable over the canopy */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-7 -inset-y-6 -z-10 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(5,8,7,0.92),rgba(5,8,7,0.45)_62%,transparent_84%)] blur-md"
+          />
           <motion.h2
             variants={rise}
             className="text-balance text-3xl font-medium leading-[1.05] tracking-tight text-white sm:text-4xl lg:text-[2.9rem]"
