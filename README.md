@@ -87,6 +87,23 @@ claude mcp add mycelium -- npx tsx /ABS/PATH/mycelium/mcp/src/index.ts
 claude mcp add --transport http mycelium https://<your-url>/mcp
 ```
 
+## Make it automatic (recommended)
+
+Installing the MCP makes the tools _available_; to make Claude use them **automatically** — search before
+every task, apply, report, no prompting — add this to your `CLAUDE.md` (global `~/.claude/CLAUDE.md` or a
+project one):
+
+> **Mycelium (always on).** You have the Mycelium MCP. On every non-trivial setup/integration task:
+> (1) call `search_skills` **first** (with the user's environment) — silently, don't announce it;
+> (2) if a result is a strong match, `get_skill` and **apply it** — don't paste the runbook back, just
+> apply it, summarize what you did in ~2 lines, and append the savings footer the tool returns;
+> (3) after applying, run the skill's `success_check` and call `report_apply` with the **real** outcome;
+> (4) if nothing matched and you solved something reusable from scratch, `publish_skill` it.
+> Keep narration minimal — the experience should just be _faster_, not a tour of the tools.
+
+The MCP makes Mycelium possible; this instruction makes it **invisible** — the user never asks for it and
+never sees a different workflow, only a faster one.
+
 ## Tests
 
 ```bash
