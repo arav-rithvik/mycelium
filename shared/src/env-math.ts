@@ -31,7 +31,8 @@ export function formatFooter(opts: {
   isPrivate?: boolean;
 }): string {
   const i = tokensToImpact(opts.tokensSaved);
-  const water = i.waterMl >= 1000 ? `${(i.waterMl / 1000).toFixed(2)} L` : `${Math.round(i.waterMl)} mL`;
+  const water =
+    i.waterMl >= 1000 ? `${(i.waterMl / 1000).toFixed(2)} L` : `${Math.round(i.waterMl)} mL`;
   const env = opts.proven ? "proven on your env" : "unproven — re-confirm";
   const priv = opts.isPrivate ? " · 🔒 private" : "";
   return [

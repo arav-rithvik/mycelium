@@ -1,4 +1,27 @@
-// Mycelium MCP server — entry point.
-// Real tool registration (search_skills, get_skill, publish_skill, report_apply, set_sharing)
-// lands in Phase 3. This stub keeps the workspace compiling until then.
-console.error("Mycelium MCP server stub — tools not yet registered (Phase 3).");
+import "./loadenv";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { supabase } from "./supabase";
+import type { Ctx } from "./ctx";
+import { registerSearchTool } from "./tools/search";
+import { registerGetTool } from "./tools/get";
+import { registerPublishTool } from "./tools/publish";
+import { registerReportTool } from "./tools/report";
+
+// Identifies who published a skill (provenance only). Defaults to "local".
+const ctx: Ctx = {
+  supabase,
+  ownerId: process.env.MYCELIUM_OWNER_ID ?? "local",
+};
+
+const server = new McpServer({ name: "mycelium", version: "0.1.0" });
+
+// One tool per file; each receives the shared ctx (db client + owner id).
+registerSearchTool(server, ctx);
+registerGetTool(server, ctx);
+registerPublishTool(server, ctx);
+registerReportTool(server, ctx);
+
+// stdio: stdout is reserved for JSON-RPC, so every log goes to stderr.
+await server.connect(new StdioServerTransport());
+console.error(`[mycelium] MCP server connected on stdio (owner: ${ctx.ownerId})`);

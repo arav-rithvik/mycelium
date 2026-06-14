@@ -38,7 +38,10 @@ export function envSimilarity(req: EnvFingerprint, proven: EnvFingerprint): numb
     parts.push({ weight: 0.4, score: same ? 1 : 0 });
     // version only matters once the framework matches; a version match on the wrong framework is meaningless
     if (req.frameworkVersion !== undefined && proven.frameworkVersion !== undefined) {
-      parts.push({ weight: 0.3, score: same ? versionSimilarity(req.frameworkVersion, proven.frameworkVersion) : 0 });
+      parts.push({
+        weight: 0.3,
+        score: same ? versionSimilarity(req.frameworkVersion, proven.frameworkVersion) : 0,
+      });
     }
   }
   if (req.os !== undefined) {
@@ -58,7 +61,10 @@ export function envSimilarity(req: EnvFingerprint, proven: EnvFingerprint): numb
 
 /** Best compatibility of a requester env against the skill's proven envelope.
  *  Returns 1 when `req` is empty/undefined (no env constraint to fail). */
-export function compatibility(req: EnvFingerprint | undefined, provenEnvs: EnvFingerprint[]): number {
+export function compatibility(
+  req: EnvFingerprint | undefined,
+  provenEnvs: EnvFingerprint[],
+): number {
   if (!req || Object.keys(req).length === 0) return 1;
   if (provenEnvs.length === 0) return 0.5; // brand new, unproven anywhere
   return Math.max(...provenEnvs.map((p) => envSimilarity(req, p)));
