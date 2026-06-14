@@ -12,8 +12,5 @@ out/
 .cache/
 coverage/
 
-# Strategy / pitch docs — kept local, never in the (soon-public) repo
-mycelium.md
-mycelium_prd.md
-mycelium_contracts.md
-mycelium_split.md
+# Local Claude Code worktrees/state
+.claude/

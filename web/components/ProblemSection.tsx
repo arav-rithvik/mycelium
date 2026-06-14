@@ -62,14 +62,22 @@ function Counter({
   const [display, setDisplay] = useState(reduce ? stat.value : 0);
 
   useEffect(() => {
-    if (!start) return;
     if (reduce) {
       setDisplay(stat.value);
       return;
     }
+    // Reset to zero whenever the section is not in view, so it always counts
+    // up fresh (0 -> target) the next time you scroll to it.
+    if (!start) {
+      setDisplay(0);
+      return;
+    }
+    // Linear + equal duration => every stat ticks evenly (even the small ones
+    // like 6 and 40, which a front-loaded ease made look static) and they all
+    // reach their target at the same moment.
     const controls = animate(0, stat.value, {
-      duration: 1.0,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 2.0,
+      ease: "linear",
       onUpdate: (v) => setDisplay(v),
     });
     return () => controls.stop();
@@ -91,7 +99,7 @@ function Counter({
 
 export default function ProblemSection() {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.35 });
+  const inView = useInView(ref, { amount: 0.35 });
 
   const THREADS = [
     "M-40 180 C 220 120, 360 320, 620 240 S 980 360, 1260 260",
@@ -104,7 +112,7 @@ export default function ProblemSection() {
     <section
       ref={ref}
       id="problem"
-      className="relative isolate flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#0a0a0a] px-6 py-28 md:py-36"
+      className="relative isolate flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-transparent px-6 py-28 md:py-36"
     >
       {/* ── Underground atmosphere ───────────────────────────────────── */}
       {/* Deep radial emerald glows, very faint, no hard edges */}
@@ -119,11 +127,6 @@ export default function ProblemSection() {
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_55%_50%_at_85%_70%,rgba(16,185,129,0.06),transparent_62%)]"
-      />
-      {/* Vignette so the section melts into the page top & bottom (Mercury feather) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"
       />
 
       {/* Drifting mycelial threads — slow, breathing root network */}
@@ -197,34 +200,18 @@ export default function ProblemSection() {
         )}
       </svg>
 
-      {/* Fine grain to kill banding in the gradients */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.025] mix-blend-screen"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
-      />
 
       {/* ── Content ──────────────────────────────────────────────────── */}
       <motion.div
         variants={container}
         initial="hidden"
         animate={inView ? "show" : "hidden"}
-        className="relative z-10 mx-auto w-full max-w-5xl -translate-y-8 text-center md:-translate-y-14"
+        className="relative z-10 mx-auto w-full max-w-5xl text-center"
       >
-        {/* Eyebrow */}
-        <motion.div variants={rise} className="flex items-center justify-center">
-          <span className="inline-flex items-center rounded-full border border-emerald-400/15 bg-emerald-400/[0.04] px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.32em] text-emerald-200/80 backdrop-blur-sm">
-            The Problem
-          </span>
-        </motion.div>
-
         {/* Headline */}
         <motion.h2
           variants={rise}
-          className="mx-auto mt-8 max-w-3xl text-balance text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl"
+          className="mx-auto max-w-3xl text-balance text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl"
         >
           Every AI agent has{" "}
           <span className="relative whitespace-nowrap text-white">
@@ -253,12 +240,17 @@ export default function ProblemSection() {
         {/* Stats */}
         <motion.div
           variants={rise}
-          className="mx-auto mt-16 grid w-full grid-cols-2 gap-px overflow-hidden rounded-[28px] border border-white/[0.07] bg-white/[0.02] backdrop-blur-sm md:mt-20 md:grid-cols-4"
+          className="relative mx-auto mt-16 grid w-full grid-cols-2 gap-px overflow-hidden rounded-[28px] border border-white/12 bg-[#0a0d0c]/80 shadow-[0_8px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl md:mt-20 md:grid-cols-4"
         >
+          {/* soft sheen across the glass */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.05),transparent_30%,transparent_70%,rgba(52,211,153,0.04))]"
+          />
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className="group relative flex flex-col items-center justify-center gap-3 bg-[#0a0a0a]/40 px-5 py-9 transition-colors duration-500 hover:bg-emerald-400/[0.03] md:px-6 md:py-12"
+              className="group relative flex flex-col items-center justify-center gap-3 bg-[#0a0d0c]/70 px-5 py-9 transition-colors duration-500 hover:bg-emerald-400/[0.06] md:px-6 md:py-12"
             >
               {/* Hairline top glow on hover */}
               <span
