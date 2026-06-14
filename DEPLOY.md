@@ -16,7 +16,7 @@ Why this matters: the whole point of Mycelium is a **shared commons**. If every 
 
 ### Code prep — already done
 
-`mcp/src/http.ts` (the HTTP entry: all 5 tools over `StreamableHTTPServerTransport`, a per-session `McpServer` keyed by the `Mcp-Session-Id` header, the caller's owner read from the `x-mycelium-owner` header defaulting to `public`, plus `GET /health`), the root `Dockerfile`, `.dockerignore`, and `railway.json` are **already in the repo**. Nothing to write — just make sure they're committed and pushed to `arav-rithvik/mycelium`.
+`mcp/src/http.ts` (the HTTP entry: all 5 tools over `StreamableHTTPServerTransport`, a per-session `McpServer` keyed by the `Mcp-Session-Id` header, a single server-side owner identity (`MYCELIUM_OWNER_ID`, default `public` — the shared commons; no client-trusted identity), plus `GET /health`), the root `Dockerfile`, `.dockerignore`, and `railway.json` are **already in the repo**. Nothing to write — just make sure they're committed and pushed to `arav-rithvik/mycelium`.
 
 ---
 

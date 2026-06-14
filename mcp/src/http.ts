@@ -21,9 +21,13 @@ import type { Ctx } from "./ctx";
 
 const PORT = process.env.PORT || 3333;
 
-// Build a fresh McpServer with all 5 tools registered against the given owner.
-// ownerId is resolved per-request from the "x-mycelium-owner" header so one remote
-// deployment can serve many owners without restarting.
+// Server-side owner identity. NOT read from any request header — a public HTTP endpoint with no
+// auth must never trust a client-supplied identity (it would be trivially spoofable). Everyone on
+// this endpoint shares the public commons under this single identity. Per-user private libraries
+// are a LOCAL (stdio) feature; real per-owner auth (bearer tokens) is the production path.
+const SERVER_OWNER_ID = process.env.MYCELIUM_OWNER_ID ?? "public";
+
+// Build a fresh McpServer with all 5 tools registered against the server's owner identity.
 function buildServer(ownerId: string): McpServer {
   const ctx: Ctx = { supabase, ownerId };
   const server = new McpServer({ name: "mycelium", version: "0.1.0" });
@@ -67,10 +71,9 @@ app.post("/mcp", async (req, res) => {
       }
     };
 
-    const ownerId = (req.headers["x-mycelium-owner"] as string | undefined) ?? "public";
-    const server = buildServer(ownerId);
+    const server = buildServer(SERVER_OWNER_ID);
     await server.connect(transport);
-    console.error(`[mycelium] MCP session initializing (owner: ${ownerId})`);
+    console.error(`[mycelium] MCP session initializing (owner: ${SERVER_OWNER_ID})`);
   } else {
     // No session id and not an initialize request: invalid.
     res.status(400).json({
