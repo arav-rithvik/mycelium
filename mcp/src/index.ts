@@ -1,9 +1,4 @@
-import { config } from "dotenv";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-// Load the repo-root .env regardless of the working directory Claude Code spawns us from.
-config({ path: join(dirname(fileURLToPath(import.meta.url)), "../../.env") });
-
+import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { supabase } from "./supabase";

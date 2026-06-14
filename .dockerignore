@@ -1,0 +1,29 @@
+# Never copy installed deps into the build context — the Dockerfile runs its own
+# `npm ci`, and a host node_modules (built for macOS/arm) would poison the Linux
+# image and bloat/slow the context upload.
+node_modules
+**/node_modules
+
+# Next.js build output — the web app isn't part of this server image.
+.next
+**/.next
+web/.next
+
+# Git metadata, secrets, and logs have no business in the image.
+.git
+.gitignore
+.env
+.env.*
+*.log
+
+# Misc local cruft.
+.DS_Store
+.vscode
+.idea
+coverage
+dist
+out
+
+# Docker files themselves (avoid cache busting on edits to deploy config).
+Dockerfile
+.dockerignore
