@@ -43,7 +43,6 @@ const pub = await client.callTool({
     content: "# test\nstep 1\nstep 2",
     success_check: "echo ok",
     tokens_to_create: 5000,
-    environment: env,
   },
 });
 const pubText = textOf(pub);

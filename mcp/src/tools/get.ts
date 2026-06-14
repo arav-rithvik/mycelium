@@ -40,15 +40,6 @@ export function registerGetTool(server: McpServer, ctx: Ctx) {
         };
       }
 
-      if (skill.visibility === "private" && skill.owner_id !== ctx.ownerId) {
-        return {
-          content: [
-            { type: "text", text: "That skill is private to another user and cannot be accessed." },
-          ],
-          isError: true,
-        };
-      }
-
       const proven = isProven(args.environment, skill.proven_envs ?? []);
       const saved = tokensSaved(skill.tokens_to_create);
       const footer = formatFooter({
@@ -56,12 +47,9 @@ export function registerGetTool(server: McpServer, ctx: Ctx) {
         trustScore: skill.trust_score,
         tokensSaved: saved,
         proven,
-        isPrivate: skill.visibility === "private",
       });
 
-      return {
-        content: [{ type: "text", text: `${skill.content}\n\n${footer}` }],
-      };
+      return { content: [{ type: "text", text: `${skill.content}\n\n${footer}` }] };
     },
   );
 }

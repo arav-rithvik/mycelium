@@ -3,7 +3,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Ctx } from "../ctx";
 import { embed } from "@mycelium/shared/embed";
 
-// Distills a solved, generalizable task into a reusable skill in the commons.
+// Distills a solved, generalizable task into a reusable skill in the shared public commons.
 export function registerPublishTool(server: McpServer, ctx: Ctx) {
   server.registerTool(
     "publish_skill",
@@ -16,48 +16,15 @@ export function registerPublishTool(server: McpServer, ctx: Ctx) {
         "so make it specific.",
       inputSchema: {
         name: z.string(),
-        description: z
-          .string()
-          .describe("one line — this is embedded for semantic search; be specific"),
-        category: z.enum([
-          "auth",
-          "payments",
-          "database",
-          "frontend",
-          "devops",
-          "api",
-          "testing",
-          "other",
-        ]),
+        description: z.string().describe("one line — this is embedded for semantic search; be specific"),
+        category: z.enum(["auth", "payments", "database", "frontend", "devops", "api", "testing", "other"]),
         framework: z.string(),
         content: z.string().describe("the full reusable runbook (steps, code, gotchas)"),
         success_check: z.string().describe("a concrete assertion that proves it worked"),
         tokens_to_create: z.number().describe("approx tokens it took to solve from scratch"),
-        environment: z
-          .object({
-            framework: z.string().optional(),
-            frameworkVersion: z.string().optional(),
-            os: z.string().optional(),
-            runtime: z.string().optional(),
-            deps: z.record(z.string(), z.string()).optional(),
-          })
-          .optional(),
-        visibility: z
-          .enum(["public", "private"])
-          .optional()
-          .describe("override the sharing toggle for this one skill"),
       },
     },
     async (args) => {
-      const { data: setting } = await ctx.supabase
-        .from("settings")
-        .select("sharing_enabled")
-        .eq("owner_id", ctx.ownerId)
-        .maybeSingle();
-      const sharingEnabled = setting?.sharing_enabled ?? true;
-
-      const visibility = args.visibility ?? (sharingEnabled ? "public" : "private");
-
       const vec = await embed(args.description);
 
       const { data: inserted, error } = await ctx.supabase
@@ -75,8 +42,6 @@ export function registerPublishTool(server: McpServer, ctx: Ctx) {
           failure_count: 0,
           tokens_to_create: args.tokens_to_create,
           proven_envs: [],
-          visibility,
-          owner_id: ctx.ownerId,
         })
         .select("id")
         .single();
@@ -92,11 +57,7 @@ export function registerPublishTool(server: McpServer, ctx: Ctx) {
         content: [
           {
             type: "text",
-            text: `Published "${args.name}" (id: ${inserted.id}) at trust 0.50 — ${
-              visibility === "public"
-                ? "now discoverable in the public commons. It will earn trust as agents reuse it successfully."
-                : "saved to your private library (not shared publicly)."
-            }`,
+            text: `Published "${args.name}" (id: ${inserted.id}) at trust 0.50 — now in the public commons. It earns trust as agents reuse it successfully.`,
           },
         ],
       };

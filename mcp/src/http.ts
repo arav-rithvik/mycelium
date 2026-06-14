@@ -8,7 +8,6 @@ import { registerSearchTool } from "./tools/search";
 import { registerGetTool } from "./tools/get";
 import { registerPublishTool } from "./tools/publish";
 import { registerReportTool } from "./tools/report";
-import { registerSetSharingTool } from "./tools/setSharing";
 import { supabase } from "./supabase";
 import type { Ctx } from "./ctx";
 
@@ -35,7 +34,6 @@ function buildServer(ownerId: string): McpServer {
   registerGetTool(server, ctx);
   registerPublishTool(server, ctx);
   registerReportTool(server, ctx);
-  registerSetSharingTool(server, ctx);
   return server;
 }
 

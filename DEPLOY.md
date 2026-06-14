@@ -43,13 +43,7 @@ New → **Web Service** → connect the same repo → Runtime **Docker** → add
 claude mcp add --transport http mycelium https://<your-url>/mcp
 ```
 
-Then inside Claude Code, turn on sharing to contribute to the commons:
-
-```
-/mycelium on
-```
-
-That's it — no repo, no keys, no npm. `/mycelium on` calls the `set_sharing` tool (`enabled=true`), so every new skill that user publishes joins the public commons; `/mycelium off` keeps their skills private.
+That's it — no repo, no keys, no npm. The moment Claude Code is connected, that agent reuses what the commons already proved and publishes new skills back to it. **Privacy is by connection:** don't want to contribute on a given project? Just don't connect (or remove) the MCP — connecting *is* the opt-in.
 
 ---
 
@@ -73,10 +67,6 @@ Why: an MCP server is **not** something a user runs by hand. `npx -y @mycelium/m
 Connect Claude Code to the Mycelium commons — one command, no install:
 
   claude mcp add --transport http mycelium https://<your-url>/mcp
-
-Then start sharing:
-
-  /mycelium on
 ```
 
 (Replace `<your-url>` with the Railway domain from step 2.4.)

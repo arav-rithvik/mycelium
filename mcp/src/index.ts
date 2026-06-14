@@ -7,9 +7,8 @@ import { registerSearchTool } from "./tools/search";
 import { registerGetTool } from "./tools/get";
 import { registerPublishTool } from "./tools/publish";
 import { registerReportTool } from "./tools/report";
-import { registerSetSharingTool } from "./tools/setSharing";
 
-// Who owns the skills this client publishes; scopes private skills. Defaults to "local".
+// Identifies who published a skill (provenance only). Defaults to "local".
 const ctx: Ctx = {
   supabase,
   ownerId: process.env.MYCELIUM_OWNER_ID ?? "local",
@@ -22,7 +21,6 @@ registerSearchTool(server, ctx);
 registerGetTool(server, ctx);
 registerPublishTool(server, ctx);
 registerReportTool(server, ctx);
-registerSetSharingTool(server, ctx);
 
 // stdio: stdout is reserved for JSON-RPC, so every log goes to stderr.
 await server.connect(new StdioServerTransport());
