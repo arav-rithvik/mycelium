@@ -29,7 +29,10 @@ console.log("SEARCH:\n" + searchText + "\n");
 const topId = firstId(searchText);
 
 if (topId) {
-  const get = await client.callTool({ name: "get_skill", arguments: { id: topId, environment: env } });
+  const get = await client.callTool({
+    name: "get_skill",
+    arguments: { id: topId, environment: env },
+  });
   console.log("GET (first 200 chars):\n" + textOf(get).slice(0, 200) + " …\n");
 }
 
@@ -58,7 +61,11 @@ if (newId) {
 
   const bad = await client.callTool({
     name: "report_apply",
-    arguments: { skill_id: newId, success: false, environment: { framework: "react", frameworkVersion: "21" } },
+    arguments: {
+      skill_id: newId,
+      success: false,
+      environment: { framework: "react", frameworkVersion: "21" },
+    },
   });
   console.log("REPORT failure:\n" + textOf(bad) + "\n");
 }

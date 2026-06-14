@@ -2,7 +2,7 @@
 
 > Containerize a Next.js app with output:'standalone' as a minimal multi-stage production Docker image.
 
-**Framework:** Next.js (14/15)  ·  **Category:** devops  ·  **Dependencies:** Docker, `next` (output: 'standalone')
+**Framework:** Next.js (14/15) · **Category:** devops · **Dependencies:** Docker, `next` (output: 'standalone')
 
 ## Steps
 
@@ -12,7 +12,7 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: "standalone",
 };
 
 module.exports = nextConfig;
@@ -97,4 +97,5 @@ docker run -p 3000:3000 my-next-app
 - If a `.env*.local` file leaks into the image it can override production env at runtime — keep it in `.dockerignore`. Public runtime config that must be inlined (`NEXT_PUBLIC_*`) has to be present at build time, not just at `docker run`.
 
 ## success_check
+
 `docker run -p 3000:3000 <image> serves the app on :3000 and the built image is well under 200MB`

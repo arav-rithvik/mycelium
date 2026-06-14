@@ -4,7 +4,9 @@ import { createClient } from "@supabase/supabase-js";
 // table. This is the "god-mode" key from the README's security note; it must never reach a browser.
 // The MCP server is a local process Claude Code spawns, so it's a safe place to hold it.
 // Tolerate a pasted "Project URL" that accidentally includes the /rest/v1 REST path or a trailing slash.
-const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
+  .replace(/\/rest\/v1\/?$/, "")
+  .replace(/\/+$/, "");
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
 if (!url || !serviceKey) {

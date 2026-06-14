@@ -6,11 +6,11 @@ Goal: turn the local stdio MCP server into **one public HTTP URL** that anyone c
 
 ## 1. What changes, and why
 
-| | Local (today) | Remote (this guide) |
-|---|---|---|
-| Transport | `StdioServerTransport` — Claude Code spawns `tsx mcp/src/index.ts` as a child process and talks over stdin/stdout | `StreamableHTTPServerTransport` — the server runs 24/7 on a host and answers HTTP `POST /mcp` |
-| Who has the keys | every user, in their own `.env` | **only the host** (Railway env vars) |
-| To connect | clone repo, `npm install`, set env, run | one line: `claude mcp add --transport http …` |
+|                  | Local (today)                                                                                                     | Remote (this guide)                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Transport        | `StdioServerTransport` — Claude Code spawns `tsx mcp/src/index.ts` as a child process and talks over stdin/stdout | `StreamableHTTPServerTransport` — the server runs 24/7 on a host and answers HTTP `POST /mcp` |
+| Who has the keys | every user, in their own `.env`                                                                                   | **only the host** (Railway env vars)                                                          |
+| To connect       | clone repo, `npm install`, set env, run                                                                           | one line: `claude mcp add --transport http …`                                                 |
 
 Why this matters: the whole point of Mycelium is a **shared commons**. If every teammate runs their own stdio server, they each need the service-role key and a checkout of the code — that doesn't scale past us. One hosted HTTP endpoint means anyone (a judge, a stranger from the website) can join the commons with zero setup, and the `SUPABASE_SERVICE_ROLE_KEY` (god-mode, RLS-bypassing) never leaves the host.
 
@@ -33,6 +33,7 @@ Why this matters: the whole point of Mycelium is a **shared commons**. If every 
 > **Host signup/login is manual — it cannot be automated.** Creating the Railway account, authorizing GitHub, and any interactive setup are browser, human-in-the-loop steps. A teammate clicks through them once. Everything after — env vars, redeploys — is repeatable.
 
 ### Render (one-line alternative)
+
 New → **Web Service** → connect the same repo → Runtime **Docker** → add the same two env vars → Create. Render gives you `https://<service>.onrender.com`; endpoint is `…onrender.com/mcp`.
 
 ---
@@ -43,7 +44,7 @@ New → **Web Service** → connect the same repo → Runtime **Docker** → add
 claude mcp add --transport http mycelium https://<your-url>/mcp
 ```
 
-That's it — no repo, no keys, no npm. The moment Claude Code is connected, that agent reuses what the commons already proved and publishes new skills back to it. **Privacy is by connection:** don't want to contribute on a given project? Just don't connect (or remove) the MCP — connecting *is* the opt-in.
+That's it — no repo, no keys, no npm. The moment Claude Code is connected, that agent reuses what the commons already proved and publishes new skills back to it. **Privacy is by connection:** don't want to contribute on a given project? Just don't connect (or remove) the MCP — connecting _is_ the opt-in.
 
 ---
 
@@ -59,7 +60,7 @@ claude mcp add --transport http mycelium https://<your-url>/mcp
 
 **B. DELETE the `TERMINAL · NPM: npx -y @mycelium/mcp` box entirely.**
 
-Why: an MCP server is **not** something a user runs by hand. `npx -y @mycelium/mcp` would launch a *stdio* server that sits waiting for JSON-RPC on stdin — in a normal terminal it just **hangs forever** with no output. The user's MCP *client* (Claude Code) is what launches/connects to a server, not the human. With remote HTTP there's nothing to run locally at all — `claude mcp add` just registers the URL. Showing a bare `npx` box teaches the wrong mental model and produces a frozen terminal. Cut it.
+Why: an MCP server is **not** something a user runs by hand. `npx -y @mycelium/mcp` would launch a _stdio_ server that sits waiting for JSON-RPC on stdin — in a normal terminal it just **hangs forever** with no output. The user's MCP _client_ (Claude Code) is what launches/connects to a server, not the human. With remote HTTP there's nothing to run locally at all — `claude mcp add` just registers the URL. Showing a bare `npx` box teaches the wrong mental model and produces a frozen terminal. Cut it.
 
 **Corrected snippet (drop-in):**
 

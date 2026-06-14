@@ -2,7 +2,7 @@
 
 > Stream OpenAI chat completions to a React UI token-by-token from a Next.js App Router route handler.
 
-**Framework:** Next.js App Router (14/15)  ·  **Category:** api  ·  **Dependencies:** `openai` (optionally the Vercel AI SDK `ai` + `@ai-sdk/openai`)
+**Framework:** Next.js App Router (14/15) · **Category:** api · **Dependencies:** `openai` (optionally the Vercel AI SDK `ai` + `@ai-sdk/openai`)
 
 ## Steps
 
@@ -20,17 +20,17 @@ npm i ai @ai-sdk/openai
 
 ```ts
 // app/api/chat/route.ts
-import { openai } from '@ai-sdk/openai';
-import { streamText, type CoreMessage } from 'ai';
+import { openai } from "@ai-sdk/openai";
+import { streamText, type CoreMessage } from "ai";
 
-export const runtime = 'edge'; // optional; 'nodejs' also works
+export const runtime = "edge"; // optional; 'nodejs' also works
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages }: { messages: CoreMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai('gpt-4o-mini'),
+    model: openai("gpt-4o-mini"),
     messages,
     abortSignal: req.signal, // stop generating if the client disconnects
   });
@@ -43,8 +43,8 @@ export async function POST(req: Request) {
 
 ```tsx
 // app/page.tsx
-'use client';
-import { useChat } from 'ai/react';
+"use client";
+import { useChat } from "ai/react";
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat();
@@ -52,12 +52,20 @@ export default function Chat() {
   return (
     <div>
       {messages.map((m) => (
-        <p key={m.id}><b>{m.role}:</b> {m.content}</p>
+        <p key={m.id}>
+          <b>{m.role}:</b> {m.content}
+        </p>
       ))}
       <form onSubmit={handleSubmit}>
         <input value={input} onChange={handleInputChange} placeholder="Say something..." />
-        <button type="submit" disabled={isLoading}>Send</button>
-        {isLoading && <button type="button" onClick={stop}>Stop</button>}
+        <button type="submit" disabled={isLoading}>
+          Send
+        </button>
+        {isLoading && (
+          <button type="button" onClick={stop}>
+            Stop
+          </button>
+        )}
       </form>
     </div>
   );
@@ -70,9 +78,9 @@ export default function Chat() {
 
 ```ts
 // app/api/chat/route.ts
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); // server-only
@@ -81,7 +89,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const completion = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: "gpt-4o-mini",
     messages,
     stream: true,
   });
@@ -96,7 +104,7 @@ export async function POST(req: Request) {
             completion.controller.abort();
             break;
           }
-          const text = chunk.choices[0]?.delta?.content ?? '';
+          const text = chunk.choices[0]?.delta?.content ?? "";
           if (text) controller.enqueue(encoder.encode(text));
         }
       } catch (err) {
@@ -112,9 +120,9 @@ export async function POST(req: Request) {
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-cache, no-transform', // stop proxy/CDN buffering
-      'X-Accel-Buffering': 'no',
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform", // stop proxy/CDN buffering
+      "X-Accel-Buffering": "no",
     },
   });
 }
@@ -124,22 +132,22 @@ export async function POST(req: Request) {
 
 ```tsx
 // app/page.tsx
-'use client';
-import { useRef, useState } from 'react';
+"use client";
+import { useRef, useState } from "react";
 
 export default function Chat() {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const abortRef = useRef<AbortController | null>(null);
 
   async function send() {
-    setText('');
+    setText("");
     const controller = new AbortController();
     abortRef.current = controller;
 
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'user', content: 'Tell me a joke.' }] }),
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "Tell me a joke." }] }),
       signal: controller.signal,
     });
     if (!res.body) return;
@@ -172,4 +180,5 @@ export default function Chat() {
 - `maxDuration` caps the function. On Vercel a long stream is cut at the platform timeout; export `maxDuration` and prefer `runtime = 'edge'` for longer streaming windows on Hobby/Pro plans.
 
 ## success_check
+
 The /api/chat route streams text chunks and the client UI renders tokens incrementally

@@ -1,52 +1,97 @@
 # 🍄 Mycelium — the collective intelligence layer for AI agents
 
-**npm for agent knowledge.** An MCP server that auto-generates reusable *skills* from successful
-agent sessions, shares them across a living commons, and lets each skill *earn* a live trust score
-by actually working — so agents stop re-solving solved problems, and every reuse is inference that
-never had to happen (energy, water, and carbon saved, measured live).
+**npm for agent knowledge.** An MCP server that lets Claude auto-generate reusable _skills_ from solved
+tasks, share them in a live commons, reuse them by **meaning** (real vector search), and let each skill
+_earn_ a trust score by actually working — so agents stop re-solving solved problems. Every reuse is
+inference that never had to happen: **energy, water, and carbon saved, measured live.**
 
-> Built at Milpitas Hacks 2 (sustainability track). The infrastructure *is* the sustainability angle:
+> Built at Milpitas Hacks 2 (sustainability track). The infrastructure _is_ the sustainability angle —
 > we cut AI's own footprint and **measure** the cut instead of estimating it.
 
-## How it works (one diagram)
+---
+
+## How it works
 
 ```
-  Claude Code  ──(MCP stdio)──►  mycelium MCP server  ──►  Supabase (Postgres + pgvector + realtime)
-   search / get / publish              5 tools                 skills · trails · stats · settings
-   report_apply / set_sharing            │                            │
-                                         │                            └─(realtime)─► web dashboard
-                                         └── @mycelium/shared ──────────────────────►  (graph + ticker)
-                                             trust · env-math · fingerprint · embeddings
+   Claude Code ──(MCP)──► mycelium server ──► Supabase (Postgres + pgvector + realtime)
+    search / get               4 tools              skills · trails · stats
+    publish / report             │                         │
+                                 │                         └─(realtime)─► live dashboard
+                                 └── @mycelium/shared ───────────────────►  (graph + impact ticker)
+                                     trust · env-math · fingerprint · embeddings
 ```
 
-- **search_skills** — real pgvector cosine-similarity search over skill-description embeddings.
-- **get_skill** — full skill content + a ready-to-print per-message savings footer.
-- **publish_skill** — distills a solved task into a named, versioned, check-backed skill.
-- **report_apply** — runs the skill's `success_check` outcome → moves Bayesian trust + impact stats.
-- **set_sharing** — the `/mycelium on|off` privacy toggle (public commons vs private library).
+**The loop:** Claude `search_skills` before a task → semantic match in the commons → `get_skill` → applies
+it for ~20% of the from-scratch tokens → `report_apply` runs the skill's `success_check` outcome, which
+moves the skill's **Bayesian trust** up (success) or down (failure) and grows the live impact totals.
+
+## The 4 MCP tools
+
+| Tool            | What it does                                                                                                                                                     |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search_skills` | **Real pgvector cosine-similarity** search over skill-description embeddings. Returns ranked matches with trust + environment compatibility + projected savings. |
+| `get_skill`     | Returns a skill's full runbook + a ready-to-print **per-message savings footer**.                                                                                |
+| `publish_skill` | Distills a solved task into a named, versioned, check-backed skill in the commons (trust 0.50).                                                                  |
+| `report_apply`  | Records a `success_check` outcome → moves Bayesian trust (up/down), widens the proven-environment set, and updates the impact totals.                            |
+
+_Privacy is by connection: if you don't want to contribute, don't connect the MCP. (No per-skill privacy
+system — a deliberate hackathon cut.)_
+
+## Why it's real engineering, not vibes
+
+- **Real semantic search.** Skill descriptions are embedded with a local model (`Supabase/gte-small`,
+  384-dim, no API key) and searched with pgvector cosine distance — not keyword matching. _"set up stripe
+  webhooks"_ finds a skill described as _"handle Stripe payment events"_ at 94% by meaning.
+- **Earned trust, Bayesian.** `trust = (successes + 1) / (successes + failures + 2)` — the mean of a
+  Beta(1,1) prior. A new skill is exactly 0.50; one success → 0.67; it **drops** on a real failure. Usage
+  alone never moves it — only `success_check` outcomes do. (See `shared/src/trust.ts`.)
+- **Environment-scoped.** A skill proven on `react@19` is surfaced as _"unproven — re-confirm"_ on
+  `react@21`; coverage widens one environment at a time. (See `shared/src/fingerprint.ts`.)
+- **Measured impact.** Tokens saved → energy/water/CO₂ via published, cited per-token factors. We observe
+  savings; we don't model them. (See `shared/src/env-math.ts` + `shared/src/constants.ts`.)
+- **Realtime, not polling.** Every DB write fans out over Supabase realtime → the dashboard reacts.
 
 ## Repo layout
 
 ```
 shared/   @mycelium/shared — types, trust, env-math, fingerprint, embeddings (imported by mcp + web)
-mcp/      the MCP server (Person 1)
-web/      Next.js dashboard + /api routes (api: Person 1, pages: Person 2)
-supabase/ schema.sql + seed.ts
+mcp/      the MCP server — stdio (local) + http.ts (remote/Railway)
+web/      Next.js dashboard + /api routes (graph, ticker, edges, "try it" search)
+supabase/ schema.sql (4 tables + pgvector match_skills RPC) + seed.ts (100 skills, 5 real runbooks)
 ```
 
-## Run it
+## Run it locally
 
 ```bash
 npm install
-cp .env.example .env            # fill in Supabase URL + keys
-# run supabase/schema.sql in the Supabase SQL editor, then:
-npm run seed                    # 20 starter skills with local embeddings
-npm test                        # shared pure-function unit tests
+cp .env.example .env            # add your Supabase URL + anon + service_role keys
+# paste supabase/schema.sql into the Supabase SQL editor and run it
+npm run seed                    # 100 skills with local embeddings
+npm run db:check                # verify tables + row counts
+npm test                        # shared unit tests (21 passing)
 npm run mcp                     # start the MCP server (stdio)
-npm run dev -w @mycelium/web    # the dashboard at http://localhost:3000
+npm run dev -w @mycelium/web    # dashboard at http://localhost:3000
 ```
 
-Embeddings run **locally** via `Supabase/gte-small` (`@xenova/transformers`) — no API key required.
+## Add it to Claude Code
+
+**Local (stdio):**
+
+```bash
+claude mcp add mycelium -- npx tsx /ABS/PATH/mycelium/mcp/src/index.ts
+```
+
+**Remote (after deploying — see [DEPLOY.md](./DEPLOY.md)):**
+
+```bash
+claude mcp add --transport http mycelium https://<your-url>/mcp
+```
+
+## Tests
+
+```bash
+npm test    # Vitest — trust, env-math, fingerprint (21 passing)
+```
 
 ## License
 

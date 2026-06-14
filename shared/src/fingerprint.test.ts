@@ -41,11 +41,19 @@ describe("compatibility", () => {
 
 describe("isProven (the 'drift is just a new environment' rule)", () => {
   it("treats the same major version as proven", () => {
-    expect(isProven({ framework: "react", frameworkVersion: "19" }, [{ framework: "react", frameworkVersion: "19" }])).toBe(true);
+    expect(
+      isProven({ framework: "react", frameworkVersion: "19" }, [
+        { framework: "react", frameworkVersion: "19" },
+      ]),
+    ).toBe(true);
   });
 
   it("treats a 2-major jump as UNPROVEN — re-confirm (the self-healing beat)", () => {
     // proven on react@19, requester on react@21 -> surfaced as unproven until re-confirmed.
-    expect(isProven({ framework: "react", frameworkVersion: "21" }, [{ framework: "react", frameworkVersion: "19" }])).toBe(false);
+    expect(
+      isProven({ framework: "react", frameworkVersion: "21" }, [
+        { framework: "react", frameworkVersion: "19" },
+      ]),
+    ).toBe(false);
   });
 });

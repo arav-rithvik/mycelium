@@ -2,7 +2,7 @@
 
 > Set up Supabase email/password auth in the Next.js App Router using the @supabase/ssr cookie-based PKCE flow.
 
-**Framework:** Next.js App Router (14/15)  ·  **Category:** auth  ·  **Dependencies:** `@supabase/ssr`, `@supabase/supabase-js`
+**Framework:** Next.js App Router (14/15) · **Category:** auth · **Dependencies:** `@supabase/ssr`, `@supabase/supabase-js`
 
 ## Steps
 
@@ -22,13 +22,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR-ANON-KEY
 
 ```ts
 // utils/supabase/client.ts
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
 }
 ```
 
@@ -36,11 +36,11 @@ export function createClient() {
 
 ```ts
 // utils/supabase/server.ts
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function createClient() {
-  const cookieStore = await cookies() // Next 15: cookies() is async
+  const cookieStore = await cookies(); // Next 15: cookies() is async
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,20 +48,20 @@ export async function createClient() {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll()
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+              cookieStore.set(name, value, options),
+            );
           } catch {
             // Called from a Server Component — safe to ignore; middleware refreshes the session.
           }
         },
       },
-    }
-  )
+    },
+  );
 }
 ```
 
@@ -69,11 +69,11 @@ export async function createClient() {
 
 ```ts
 // utils/supabase/middleware.ts
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -81,74 +81,72 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+            supabaseResponse.cookies.set(name, value, options),
+          );
         },
       },
-    }
-  )
+    },
+  );
 
   // Do NOT run code between createServerClient and getUser() — it triggers the refresh.
-  await supabase.auth.getUser()
+  await supabase.auth.getUser();
 
-  return supabaseResponse
+  return supabaseResponse;
 }
 ```
 
 ```ts
 // middleware.ts  (project root)
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/utils/supabase/middleware'
+import { type NextRequest } from "next/server";
+import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  return await updateSession(request);
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
-}
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+};
 ```
 
 5. **Sign-up / sign-in server actions.** `signUp` sends a confirmation email whose link hits `/auth/callback`; `signInWithPassword` sets the session cookies immediately.
 
 ```ts
 // app/login/actions.ts
-'use server'
+"use server";
 
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
 export async function signin(formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  })
-  if (error) redirect('/login?error=' + encodeURIComponent(error.message))
-  revalidatePath('/', 'layout')
-  redirect('/')
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+  });
+  if (error) redirect("/login?error=" + encodeURIComponent(error.message));
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
     options: {
-      emailRedirectTo: 'http://localhost:3000/auth/callback',
+      emailRedirectTo: "http://localhost:3000/auth/callback",
     },
-  })
-  if (error) redirect('/login?error=' + encodeURIComponent(error.message))
-  redirect('/login?message=Check your email to confirm')
+  });
+  if (error) redirect("/login?error=" + encodeURIComponent(error.message));
+  redirect("/login?message=Check your email to confirm");
 }
 ```
 
@@ -156,20 +154,20 @@ export async function signup(formData: FormData) {
 
 ```ts
 // app/auth/callback/route.ts
-import { NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/";
 
   if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) return NextResponse.redirect(`${origin}${next}`)
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) return NextResponse.redirect(`${origin}${next}`);
   }
-  return NextResponse.redirect(`${origin}/login?error=auth_failed`)
+  return NextResponse.redirect(`${origin}/login?error=auth_failed`);
 }
 ```
 
@@ -177,14 +175,16 @@ export async function GET(request: Request) {
 
 ```tsx
 // app/page.tsx
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-  return <p>Signed in as {user.email}</p>
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  return <p>Signed in as {user.email}</p>;
 }
 ```
 
@@ -198,4 +198,5 @@ export default async function Home() {
 - **Match the `matcher` and redirect URLs.** The middleware matcher must not exclude `/auth/callback`, and `emailRedirectTo` plus every redirect URL must be listed under Supabase Dashboard → Authentication → URL Configuration.
 
 ## success_check
+
 `GET /auth/callback returns a 302 redirect and the Supabase auth cookies are set`

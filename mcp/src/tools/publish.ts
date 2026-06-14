@@ -16,8 +16,19 @@ export function registerPublishTool(server: McpServer, ctx: Ctx) {
         "so make it specific.",
       inputSchema: {
         name: z.string(),
-        description: z.string().describe("one line — this is embedded for semantic search; be specific"),
-        category: z.enum(["auth", "payments", "database", "frontend", "devops", "api", "testing", "other"]),
+        description: z
+          .string()
+          .describe("one line — this is embedded for semantic search; be specific"),
+        category: z.enum([
+          "auth",
+          "payments",
+          "database",
+          "frontend",
+          "devops",
+          "api",
+          "testing",
+          "other",
+        ]),
         framework: z.string(),
         content: z.string().describe("the full reusable runbook (steps, code, gotchas)"),
         success_check: z.string().describe("a concrete assertion that proves it worked"),
