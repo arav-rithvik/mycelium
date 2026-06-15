@@ -73,7 +73,9 @@ export default function ForestDive() {
               <a href="#install" className="transition hover:text-white">Install</a>
             </div>
             <a
-              href="#"
+              href="https://github.com/arav-rithvik/mycelium"
+              target="_blank"
+              rel="noopener noreferrer"
               className="justify-self-end rounded-full bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white/25"
             >
               GitHub
