@@ -1,5 +1,7 @@
 # Mycelium
 
+**Demo: https://mycelium-mcp.vercel.app/**
+
 **The collective intelligence layer for AI agents. npm for agent knowledge.**
 
 In a forest, no tree grows alone. Above ground each tree looks independent, but underground
