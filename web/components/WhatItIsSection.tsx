@@ -514,6 +514,7 @@ export default function WhatItIsSection() {
 
   return (
     <section
+      id="how"
       ref={ref}
       className="relative isolate flex h-screen w-full items-center justify-center overflow-hidden bg-transparent"
     >

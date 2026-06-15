@@ -315,6 +315,7 @@ export default function CommonsDashboardSection() {
 
   return (
     <section
+      id="dashboard"
       data-snap
       ref={ref}
       className="relative isolate flex min-h-screen w-full items-center justify-center overflow-hidden bg-transparent py-20"
