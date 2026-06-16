@@ -246,8 +246,10 @@ export default function InstallCompareSection() {
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const COMMANDS = [
-    { label: "Claude Code", command: "claude mcp add mycelium -- npx -y @mycelium/mcp" },
-    { label: "Terminal · npm", command: "npx -y @mycelium/mcp" },
+    {
+      label: "Claude Code",
+      command: "claude mcp add --transport http mycelium https://mycelium.up.railway.app/mcp",
+    },
   ];
 
   const copy = (i: number) => {
@@ -310,9 +312,9 @@ export default function InstallCompareSection() {
             variants={rise}
             className="mt-5 max-w-md text-pretty text-[14.5px] leading-relaxed text-white/60 md:text-[15px]"
           >
-            Mycelium is an MCP server. Add it to Claude Code or run it from your
-            terminal — every agent starts publishing what it learns and reusing
-            what the commons already proved.
+            Mycelium is a remote MCP server. Add it to Claude Code with one
+            command — no install, no keys — and every agent starts publishing
+            what it learns and reusing what the commons already proved.
           </motion.p>
 
           <motion.div variants={rise} className="mt-7 flex flex-col gap-3">
