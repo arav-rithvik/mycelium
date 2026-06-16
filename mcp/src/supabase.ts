@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import WebSocket from "ws";
 
 // SERVICE-ROLE client — server-side only. Bypasses Row-Level Security: full read/write on every
 // table. This is the "god-mode" key from the README's security note; it must never reach a browser.
@@ -17,4 +18,10 @@ if (!url || !serviceKey) {
 
 export const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false }, // a server process has no user session to persist
+  // supabase-js builds a Realtime client at createClient() time even though this server never
+  // subscribes to anything. That constructor needs a WebSocket impl, and Node < 22 has no global
+  // WebSocket — so on a Node-20 host the process throws at import and crashes on boot. We never
+  // open this socket; we just hand Realtime the `ws` package so the constructor is satisfied on
+  // any Node version. Makes the server portable instead of pinned to a Node 22 runtime.
+  realtime: { transport: WebSocket as unknown as never },
 });
