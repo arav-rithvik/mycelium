@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1 — deps: install the whole workspace once, cached on manifests only.
 # ---------------------------------------------------------------------------
-FROM node:20-slim AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
 
 # Copy ONLY the manifests + lockfile first. npm needs every workspace's
@@ -33,7 +33,7 @@ RUN npm ci
 # ---------------------------------------------------------------------------
 # Stage 2 — runner: the actual image we ship.
 # ---------------------------------------------------------------------------
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -64,7 +64,7 @@ ENV TRANSFORMERS_CACHE=/app/.cache/transformers
 RUN mkdir -p /app/.cache/transformers \
   && chown -R node:node /app
 
-# node:20-slim ships a non-root `node` user (uid 1000). Run as it: a compromised
+# node:22-slim ships a non-root `node` user (uid 1000). Run as it: a compromised
 # process then can't write outside the dirs we explicitly handed it.
 USER node
 
