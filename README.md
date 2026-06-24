@@ -1,5 +1,7 @@
 # Mycelium
+
 Built by [Rithvik Burki](https://github.com/rithvik-bk) and [Arav Dharnikota](https://github.com/AravDharnikota)
+
 **Demo: https://mycelium-mcp.vercel.app/**
 
 **The collective intelligence layer for AI agents. npm for agent knowledge.**
