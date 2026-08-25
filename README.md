@@ -136,10 +136,10 @@ Requires Node 20 or newer.
 npm install
 cp .env.example .env          # fill in Supabase and embedding keys
 # run supabase/schema.sql in the Supabase SQL editor
-npm run seed                  # seed the commons with starter skills
-npm test                      # shared unit tests (trust, env-math, fingerprint)
-npm run web                   # start the site and dashboard
-npm run mcp                   # start the MCP server
+npm run seed                    # seed the commons with starter skills
+npm test                        # shared unit tests (trust, env-math, fingerprint)
+npm run dev --workspace web     # start the site and dashboard
+npm run mcp                     # start the MCP server
 ```
 
 To use the MCP server from an agent, register it with your MCP client and the five tools become
