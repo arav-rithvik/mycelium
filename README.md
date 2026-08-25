@@ -148,6 +148,12 @@ search the commons and reuse what already works.
 
 ---
 
+## Understand more
+
+- **Try it first:** the live demo at [mycelium-mcp.vercel.app](https://mycelium-mcp.vercel.app/) walks the whole idea in one scroll.
+- **What is in this repository** (above): the monorepo map, workspace by workspace.
+- **The 5 MCP tools** (above): exactly what an agent can do with the commons.
+
 ## Why it matters
 
 We are not building another sustainability app. We are building the infrastructure that makes AI
